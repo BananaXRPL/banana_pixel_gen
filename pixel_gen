@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$BANANA Business Pixel Generator</title>
+  <!-- Google Fonts: Roboto for UI and Press Start 2P for Landing Page -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* Global Reset & Base Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Roboto', sans-serif; background: #222; color: #eee; }
+    a { color: #007acc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* =============================
+       Landing Page Styles
+       ============================= */
+    #landingPage {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://via.placeholder.com/1920x1080/000000/ff00ff?text=Retro+Synthwave+Scene') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 10;
+      padding: 20px;
+      font-family: 'Press Start 2P', cursive;
+    }
+    #landingPage .logo {
+      width: 150px;
+      margin-bottom: 20px;
+    }
+    #landingPage h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    #landingPage p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+    }
+    #launchAppBtn {
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 4px;
+      background: #007acc;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #launchAppBtn:hover {
+      background: #005a99;
+    }
+
+    /* =============================
+       Editor Container & Banana Theme
+       ============================= */
+    #editorContainer {
+      display: none; /* Hidden until "Launch App" is clicked */
+      background: #FFFDE7; /* very light yellow */
+    }
+    #container {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      grid-template-rows: auto 1fr 150px;
+      grid-template-areas:
+        "sidebar header"
+        "sidebar main"
+        "timeline timeline";
+      min-height: 100vh;
+    }
+    #sidebar { 
+      grid-area: sidebar; 
+      background: #FFF9C4; /* light banana */
+      padding: 15px; 
+      overflow-y: auto;
+      border-right: 1px solid #ccc;
+      color: #222;
+    }
+    #sidebar h3 { margin-bottom: 10px; }
+    #header { 
+      grid-area: header; 
+      background: #FFEB3B; /* banana yellow */
+      padding: 10px 15px; 
+      display: flex; 
+      flex-wrap: wrap; 
+      align-items: center; 
+      justify-content: space-between;
+      color: #222;
+    }
+    #main { 
+      grid-area: main; 
+      background: #fff; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      padding: 20px;
+    }
+    #timeline { 
+      grid-area: timeline; 
+      background: #FFECB3; 
+      padding: 10px 15px; 
+      display: flex; 
+      align-items: center; 
+      overflow-x: auto;
+      color: #222;
+    }
+    .toolbar-btn {
+      padding: 8px 12px; 
+      margin: 3px; 
+      border: none; 
+      border-radius: 4px; 
+      background: #FBC02D; 
+      color: #222; 
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toolbar-btn:hover { background: #F9A825; }
+    .toolbar-btn.active { background: #F57F17; }
+    /* Additional Background Controls */
+    #bgControls {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 10px;
+    }
+    #bgControls label {
+      margin-right: 5px;
+      font-size: 0.9rem;
+    }
+    /* Sidebar Layers */
+    .layer-item {
+      background: #ccc; 
+      margin-bottom: 8px; 
+      padding: 6px; 
+      border-radius: 4px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .layer-item.active { background: #F57F17; }
+    .layer-controls button { margin-left: 3px; font-size: 0.8rem; }
+    /* Frames Timeline */
+    .frame-item {
+      background: #FBC02D; 
+      padding: 8px; 
+      margin-right: 8px; 
+      border-radius: 4px; 
+      cursor: pointer;
+      transition: border 0.2s;
+    }
+    .frame-item.active { border: 2px solid #F57F17; }
+    /* Canvas */
+    canvas {
+      background: transparent; 
+      image-rendering: pixelated; 
+      border: 1px solid #666;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    /* Reference Upload Controls */
+    #refControls input[type="file"] {
+      display: inline-block;
+      margin-right: 5px;
+      padding: 5px;
+      background: #FBC02D;
+      color: #222;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* =============================
+       Footer Styles (with Socials)
+       ============================= */
+    footer {
+      background: #333;
+      color: #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      font-size: 0.9rem;
+    }
+    footer .footer-left a { margin-right: 10px; }
+    
+    /* =============================
+       Light Theme (if toggled)
+       ============================= */
+    .light-theme { background: #f0f0f0; color: #222; }
+    .light-theme a { color: #007acc; }
+    .light-theme #sidebar { background: #eee; color: #222; border-right: 1px solid #ccc; }
+    .light-theme #header { background: #ddd; }
+    .light-theme #main { background: #fff; }
+    .light-theme #timeline { background: #ddd; }
+    .light-theme .toolbar-btn { background: #aaa; color: #222; }
+    .light-theme footer { background: #ddd; color: #222; }
+  </style>
+</head>
+<body>
+  <!-- Landing Page -->
+  <div id="landingPage">
+    <!-- Replace with your actual logo image -->
+    <img src="https://via.placeholder.com/150?text=Logo" alt="$BANANA Logo" class="logo">
+    <h1>$BANANA Business Pixel Generator</h1>
+    <p>Unleash Your Pixel Creativity</p>
+    <button id="launchAppBtn">Launch App</button>
+  </div>
+
+  <!-- Editor Container -->
+  <div id="editorContainer">
+    <div id="container">
+      <!-- Sidebar: Layers Panel -->
+      <div id="sidebar">
+        <h3>Layers</h3>
+        <div id="layersList"></div>
+        <button id="addLayerBtn" class="toolbar-btn">Add Layer</button>
+      </div>
+      <!-- Top Toolbar -->
+      <div id="header">
+        <div>
+          <button id="pencilBtn" class="toolbar-btn active" title="Pencil (P)">Pencil</button>
+          <button id="eraserBtn" class="toolbar-btn" title="Eraser (E)">Eraser</button>
+          <button id="fillBtn" class="toolbar-btn" title="Fill (F)">Fill</button>
+          <button id="lineBtn" class="toolbar-btn" title="Line (L)">Line</button>
+          <button id="rectBtn" class="toolbar-btn" title="Rectangle (R)">Rect</button>
+          <button id="ellipseBtn" class="toolbar-btn" title="Ellipse (O)">Ellipse</button>
+        </div>
+        <div>
+          <input type="color" id="colorPicker" title="Color Picker">
+          <button id="gradientBtn" class="toolbar-btn" title="Gradient Tool (G)">Gradient</button>
+          <button id="symmetryBtn" class="toolbar-btn" title="Symmetry Mode (Y)">Symmetry</button>
+        </div>
+        <div id="refControls">
+          <input type="file" id="referenceUpload" accept="image/*" title="Upload Reference">
+          <button id="removeReferenceBtn" class="toolbar-btn" title="Remove Reference">Remove Ref</button>
+        </div>
+        <div>
+          <button id="undoBtn" class="toolbar-btn" title="Undo (Ctrl+Z)">Undo</button>
+          <button id="redoBtn" class="toolbar-btn" title="Redo (Ctrl+Y)">Redo</button>
+          <button id="clearBtn" class="toolbar-btn" title="Clear Canvas">Clear</button>
+          <button id="exportBtn" class="toolbar-btn" title="Export PNG">Export</button>
+          <button id="saveProjectBtn" class="toolbar-btn" title="Save Project">Save</button>
+          <button id="loadProjectBtn" class="toolbar-btn" title="Load Project">Load</button>
+          <button id="themeToggleBtn" class="toolbar-btn" title="Toggle Theme">Toggle Theme</button>
+        </div>
+        <!-- Background Controls -->
+        <div id="bgControls">
+          <label for="bgColorPicker">BG Color:</label>
+          <input type="color" id="bgColorPicker" value="#ffffff">
+          <label for="checkerboardToggle">Checkerboard:</label>
+          <input type="checkbox" id="checkerboardToggle">
+        </div>
+      </div>
+      <!-- Main Canvas Area -->
+      <div id="main">
+        <canvas id="compositeCanvas" width="640" height="640"></canvas>
+      </div>
+      <!-- Timeline: Frame Panel -->
+      <div id="timeline">
+        <h3 style="margin-right:10px;">Frames:</h3>
+        <div id="framesList" style="display:flex;"></div>
+        <button id="addFrameBtn" class="toolbar-btn">Add Frame</button>
+        <button id="removeFrameBtn" class="toolbar-btn">Remove Frame</button>
+        <button id="onionSkinBtn" class="toolbar-btn">Onion Skin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer with Social Links -->
+  <footer>
+    <div class="footer-left">
+      <a href="https://www.x.com/bananaXRPL" target="_blank">X</a>
+      <a href="https://www.instagram.com/bananaXRPL" target="_blank">Instagram</a>
+    </div>
+    <div class="footer-right">
+      Made by the Banana King
+    </div>
+  </footer>
+
+  <script>
+    /**********************
+     * Landing Page Transition
+     **********************/
+    document.getElementById('launchAppBtn').addEventListener('click', () => {
+      document.getElementById('landingPage').style.display = 'none';
+      document.getElementById('editorContainer').style.display = 'block';
+    });
+
+    /**********************
+     * Editor Configuration & Variables
+     **********************/
+    const gridWidth = 32, gridHeight = 32, defaultZoom = 20;
+    let zoom = defaultZoom;
+    let currentTool = 'pencil'; // Options: pencil, eraser, fill, line, rect, ellipse, gradient
+    let symmetryMode = false;
+    let onionSkin = false;
+    let theme = 'dark';
+    let referenceImage = null;
+
+    /**********************
+     * Project Structure
+     * A project is made of frames, and each frame contains layers.
+     **********************/
+    let project = { frames: [], activeFrame: 0 };
+
+    // History for undo/redo
+    let historyStack = [];
+    let redoStack = [];
+
+    // Utility: Create an empty layer (2D array)
+    function createEmptyLayer() {
+      let layer = [];
+      for (let y = 0; y < gridHeight; y++) {
+        let row = [];
+        for (let x = 0; x < gridWidth; x++) {
+          row.push(null); // null = transparent
+        }
+        layer.push(row);
+      }
+      return layer;
+    }
+
+    // Initialize project with one frame & one layer
+    function initProject() {
+      project.frames = [];
+      let frame = { layers: [], activeLayer: 0 };
+      frame.layers.push({ name: 'Layer 1', visible: true, data: createEmptyLayer() });
+      project.frames.push(frame);
+      project.activeFrame = 0;
+      updateLayersUI();
+      updateFramesUI();
+      saveHistory();
+      drawComposite();
+    }
+    initProject();
+
+    /**********************
+     * Canvas & Composite Rendering
+     **********************/
+    const compositeCanvas = document.getElementById('compositeCanvas');
+    const ctx = compositeCanvas.getContext('2d');
+    compositeCanvas.width = gridWidth * zoom;
+    compositeCanvas.height = gridHeight * zoom;
+
+    // Draw background: either solid or checkerboard
+    function drawBackground() {
+      const checkerboard = document.getElementById('checkerboardToggle').checked;
+      const bgColor = document.getElementById('bgColorPicker').value;
+      if (checkerboard) {
+        const patternSize = 10;
+        let offCanvas = document.createElement('canvas');
+        offCanvas.width = patternSize * 2;
+        offCanvas.height = patternSize * 2;
+        let offCtx = offCanvas.getContext('2d');
+        offCtx.fillStyle = bgColor;
+        offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+        offCtx.fillStyle = shadeColor(bgColor, -20);
+        offCtx.fillRect(0, 0, patternSize, patternSize);
+        offCtx.fillRect(patternSize, patternSize, patternSize, patternSize);
+        let pattern = ctx.createPattern(offCanvas, 'repeat');
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+      } else {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+      }
+    }
+
+    // Darken a hex color by percent (negative for darkening)
+    function shadeColor(color, percent) {
+      let num = parseInt(color.slice(1),16),
+          amt = Math.round(2.55 * percent),
+          R = (num >> 16) + amt,
+          G = (num >> 8 & 0x00FF) + amt,
+          B = (num & 0x0000FF) + amt;
+      return "#" + (
+        0x1000000 +
+        (R<255? (R<1?0:R):255)*0x10000 +
+        (G<255? (G<1?0:G):255)*0x100 +
+        (B<255? (B<1?0:B):255)
+      ).toString(16).slice(1);
+    }
+
+    // Draw the composite canvas (combining background, reference image, onion skin, and all layers)
+    function drawComposite() {
+      drawBackground();
+      // Draw reference image behind layers, if available
+      if (referenceImage && referenceImage.complete) {
+        ctx.globalAlpha = 0.5;
+        ctx.drawImage(referenceImage, 0, 0, compositeCanvas.width, compositeCanvas.height);
+        ctx.globalAlpha = 1;
+      }
+      const frame = project.frames[project.activeFrame];
+      // Onion skin: if enabled, draw the previous frame semi‑transparently
+      if (onionSkin && project.activeFrame > 0) {
+        const prevFrame = project.frames[project.activeFrame - 1];
+        drawFrame(prevFrame, 0.3);
+      }
+      drawFrame(frame, 1);
+      drawGrid();
+    }
+
+    // Draw a single frame with a given opacity
+    function drawFrame(frame, opacity) {
+      frame.layers.forEach(layer => {
+        if (layer.visible) {
+          ctx.globalAlpha = opacity;
+          for (let y = 0; y < gridHeight; y++) {
+            for (let x = 0; x < gridWidth; x++) {
+              let color = layer.data[y][x];
+              if (color) {
+                ctx.fillStyle = color;
+                ctx.fillRect(x * zoom, y * zoom, zoom, zoom);
+              }
+            }
+          }
+        }
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    // Draw grid lines over the canvas
+    function drawGrid() {
+      ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= gridWidth; x++) {
+        ctx.beginPath();
+        ctx.moveTo(x * zoom, 0);
+        ctx.lineTo(x * zoom, gridHeight * zoom);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= gridHeight; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * zoom);
+        ctx.lineTo(gridWidth * zoom, y * zoom);
+        ctx.stroke();
+      }
+    }
+
+    /**********************
+     * Layers UI & Functions
+     **********************/
+    const layersList = document.getElementById('layersList');
+    function updateLayersUI() {
+      layersList.innerHTML = '';
+      const frame = project.frames[project.activeFrame];
+      frame.layers.forEach((layer, index) => {
+        const div = document.createElement('div');
+        div.className = 'layer-item' + (index === frame.activeLayer ? ' active' : '');
+        div.innerHTML = `<span>${layer.name}</span>`;
+        // Controls: toggle visibility, move up/down, delete
+        const controls = document.createElement('div');
+        controls.className = 'layer-controls';
+        const toggleBtn = document.createElement('button');
+        toggleBtn.textContent = layer.visible ? 'Hide' : 'Show';
+        toggleBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          layer.visible = !layer.visible;
+          updateLayersUI();
+          drawComposite();
+        });
+        controls.appendChild(toggleBtn);
+        const upBtn = document.createElement('button');
+        upBtn.textContent = 'Up';
+        upBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (index > 0) {
+            frame.layers.splice(index, 1);
+            frame.layers.splice(index - 1, 0, layer);
+            if (frame.activeLayer === index) frame.activeLayer = index - 1;
+            updateLayersUI();
+            drawComposite();
+          }
+        });
+        controls.appendChild(upBtn);
+        const downBtn = document.createElement('button');
+        downBtn.textContent = 'Down';
+        downBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (index < frame.layers.length - 1) {
+            frame.layers.splice(index, 1);
+            frame.layers.splice(index + 1, 0, layer);
+            if (frame.activeLayer === index) frame.activeLayer = index + 1;
+            updateLayersUI();
+            drawComposite();
+          }
+        });
+        controls.appendChild(downBtn);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Del';
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (frame.layers.length > 1) {
+            frame.layers.splice(index, 1);
+            if (frame.activeLayer >= frame.layers.length) {
+              frame.activeLayer = frame.layers.length - 1;
+            }
+            updateLayersUI();
+            drawComposite();
+          }
+        });
+        controls.appendChild(deleteBtn);
+        div.appendChild(controls);
+        div.addEventListener('click', () => {
+          frame.activeLayer = index;
+          updateLayersUI();
+        });
+        layersList.appendChild(div);
+      });
+    }
+    document.getElementById('addLayerBtn').addEventListener('click', () => {
+      const frame = project.frames[project.activeFrame];
+      frame.layers.push({ name: 'Layer ' + (frame.layers.length + 1), visible: true, data: createEmptyLayer() });
+      updateLayersUI();
+      saveHistory();
+    });
+
+    /**********************
+     * Frames (Animation) UI & Functions
+     **********************/
+    const framesList = document.getElementById('framesList');
+    function updateFramesUI() {
+      framesList.innerHTML = '';
+      project.frames.forEach((frame, index) => {
+        const div = document.createElement('div');
+        div.className = 'frame-item' + (index === project.activeFrame ? ' active' : '');
+        div.textContent = index + 1;
+        div.addEventListener('click', () => {
+          project.activeFrame = index;
+          updateFramesUI();
+          updateLayersUI();
+          drawComposite();
+        });
+        framesList.appendChild(div);
+      });
+    }
+    document.getElementById('addFrameBtn').addEventListener('click', () => {
+      // Duplicate the current frame
+      let currentFrame = project.frames[project.activeFrame];
+      let newFrame = {
+        layers: currentFrame.layers.map(layer => ({
+          name: layer.name,
+          visible: layer.visible,
+          data: JSON.parse(JSON.stringify(layer.data))
+        })),
+        activeLayer: currentFrame.activeLayer
+      };
+      project.frames.push(newFrame);
+      project.activeFrame = project.frames.length - 1;
+      updateFramesUI();
+      updateLayersUI();
+      saveHistory();
+      drawComposite();
+    });
+    document.getElementById('removeFrameBtn').addEventListener('click', () => {
+      if (project.frames.length > 1) {
+        project.frames.splice(project.activeFrame, 1);
+        project.activeFrame = Math.max(0, project.activeFrame - 1);
+        updateFramesUI();
+        updateLayersUI();
+        drawComposite();
+      }
+    });
+    document.getElementById('onionSkinBtn').addEventListener('click', () => {
+      onionSkin = !onionSkin;
+      document.getElementById('onionSkinBtn').classList.toggle('active', onionSkin);
+      drawComposite();
+    });
+
+    /**********************
+     * Toolbar & Tool Selection
+     **********************/
+    const pencilBtn = document.getElementById('pencilBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
+    const fillBtn = document.getElementById('fillBtn');
+    const lineBtn = document.getElementById('lineBtn');
+    const rectBtn = document.getElementById('rectBtn');
+    const ellipseBtn = document.getElementById('ellipseBtn');
+    const gradientBtn = document.getElementById('gradientBtn');
+    const symmetryBtn = document.getElementById('symmetryBtn');
+
+    function selectTool(tool) {
+      currentTool = tool;
+      [pencilBtn, eraserBtn, fillBtn, lineBtn, rectBtn, ellipseBtn, gradientBtn].forEach(btn => {
+        btn.classList.remove('active');
+      });
+      if (tool === 'pencil') pencilBtn.classList.add('active');
+      else if (tool === 'eraser') eraserBtn.classList.add('active');
+      else if (tool === 'fill') fillBtn.classList.add('active');
+      else if (tool === 'line') lineBtn.classList.add('active');
+      else if (tool === 'rect') rectBtn.classList.add('active');
+      else if (tool === 'ellipse') ellipseBtn.classList.add('active');
+      else if (tool === 'gradient') gradientBtn.classList.add('active');
+      updateCursor();
+    }
+    pencilBtn.addEventListener('click', () => selectTool('pencil'));
+    eraserBtn.addEventListener('click', () => selectTool('eraser'));
+    fillBtn.addEventListener('click', () => selectTool('fill'));
+    lineBtn.addEventListener('click', () => selectTool('line'));
+    rectBtn.addEventListener('click', () => selectTool('rect'));
+    ellipseBtn.addEventListener('click', () => selectTool('ellipse'));
+    gradientBtn.addEventListener('click', () => selectTool('gradient'));
+    symmetryBtn.addEventListener('click', () => {
+      symmetryMode = !symmetryMode;
+      symmetryBtn.classList.toggle('active', symmetryMode);
+    });
+    const colorPicker = document.getElementById('colorPicker');
+    colorPicker.value = "#000000";
+
+    // Update cursor based on selected tool
+    function updateCursor() {
+      if (currentTool === 'pencil') compositeCanvas.style.cursor = 'crosshair';
+      else if (currentTool === 'eraser') compositeCanvas.style.cursor = 'cell';
+      else if (currentTool === 'fill') compositeCanvas.style.cursor = 'alias';
+      else if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'gradient')
+        compositeCanvas.style.cursor = 'crosshair';
+      else compositeCanvas.style.cursor = 'default';
+    }
+
+    /**********************
+     * Reference Image Upload
+     **********************/
+    document.getElementById('referenceUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          referenceImage = new Image();
+          referenceImage.onload = drawComposite;
+          referenceImage.src = event.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+    document.getElementById('removeReferenceBtn').addEventListener('click', () => {
+      referenceImage = null;
+      document.getElementById('referenceUpload').value = "";
+      drawComposite();
+    });
+
+    /**********************
+     * Canvas Drawing Interaction
+     **********************/
+    let isDrawing = false;
+    let startX, startY;
+    compositeCanvas.addEventListener('mousedown', (e) => {
+      const pos = getCanvasCoordinates(e);
+      startX = pos.x;
+      startY = pos.y;
+      isDrawing = true;
+      saveHistory();
+      if (currentTool === 'fill') {
+        performFill(pos.x, pos.y);
+        isDrawing = false;
+      }
+    });
+    compositeCanvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      const pos = getCanvasCoordinates(e);
+      if (currentTool === 'pencil' || currentTool === 'eraser') {
+        drawPixel(pos.x, pos.y);
+      } else {
+        // For shape tools, show a preview
+        drawComposite();
+        previewShape(startX, startY, pos.x, pos.y);
+      }
+    });
+    window.addEventListener('mouseup', (e) => {
+      if (!isDrawing) return;
+      const pos = getCanvasCoordinates(e);
+      if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse') {
+        drawShape(startX, startY, pos.x, pos.y);
+      }
+      isDrawing = false;
+      drawComposite();
+    });
+
+    // Get grid coordinates from canvas mouse event
+    function getCanvasCoordinates(e) {
+      const rect = compositeCanvas.getBoundingClientRect();
+      const x = Math.floor((e.clientX - rect.left) / zoom);
+      const y = Math.floor((e.clientY - rect.top) / zoom);
+      return { x, y };
+    }
+
+    // Draw a pixel on the active layer
+    function drawPixel(x, y) {
+      const frame = project.frames[project.activeFrame];
+      const layer = frame.layers[frame.activeLayer];
+      if (currentTool === 'pencil') {
+        layer.data[y][x] = colorPicker.value;
+        if (symmetryMode) {
+          layer.data[y][gridWidth - 1 - x] = colorPicker.value;
+        }
+      } else if (currentTool === 'eraser') {
+        layer.data[y][x] = null;
+        if (symmetryMode) {
+          layer.data[y][gridWidth - 1 - x] = null;
+        }
+      }
+      drawComposite();
+    }
+
+    // Flood fill implementation
+    function performFill(x, y) {
+      const frame = project.frames[project.activeFrame];
+      const layer = frame.layers[frame.activeLayer];
+      const targetColor = layer.data[y][x];
+      const replacementColor = colorPicker.value;
+      if (targetColor === replacementColor) return;
+      const stack = [{ x, y }];
+      while (stack.length) {
+        const { x: cx, y: cy } = stack.pop();
+        if (cx < 0 || cx >= gridWidth || cy < 0 || cy >= gridHeight) continue;
+        if (layer.data[cy][cx] !== targetColor) continue;
+        layer.data[cy][cx] = replacementColor;
+        stack.push({ x: cx + 1, y: cy });
+        stack.push({ x: cx - 1, y: cy });
+        stack.push({ x: cx, y: cy + 1 });
+        stack.push({ x: cx, y: cy - 1 });
+      }
+      drawComposite();
+    }
+
+    // Preview shape drawing (line, rect, ellipse)
+    function previewShape(x0, y0, x1, y1) {
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.strokeStyle = colorPicker.value;
+      ctx.lineWidth = zoom / 2;
+      if (currentTool === 'line') {
+        ctx.beginPath();
+        ctx.moveTo(x0 * zoom + zoom/2, y0 * zoom + zoom/2);
+        ctx.lineTo(x1 * zoom + zoom/2, y1 * zoom + zoom/2);
+        ctx.stroke();
+      } else if (currentTool === 'rect') {
+        const rectX = Math.min(x0, x1), rectY = Math.min(y0, y1);
+        const rectW = Math.abs(x1 - x0) + 1, rectH = Math.abs(y1 - y0) + 1;
+        ctx.strokeRect(rectX * zoom, rectY * zoom, rectW * zoom, rectH * zoom);
+      } else if (currentTool === 'ellipse') {
+        const centerX = (x0 + x1) / 2, centerY = (y0 + y1) / 2;
+        const radiusX = Math.abs(x1 - x0) / 2, radiusY = Math.abs(y1 - y0) / 2;
+        ctx.beginPath();
+        ctx.ellipse(centerX * zoom + zoom/2, centerY * zoom + zoom/2, radiusX * zoom, radiusY * zoom, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // Finalize shape drawing
+    function drawShape(x0, y0, x1, y1) {
+      const frame = project.frames[project.activeFrame];
+      const layer = frame.layers[frame.activeLayer];
+      if (currentTool === 'line') {
+        drawLine(layer.data, x0, y0, x1, y1, colorPicker.value);
+      } else if (currentTool === 'rect') {
+        drawRect(layer.data, x0, y0, x1, y1, colorPicker.value);
+      } else if (currentTool === 'ellipse') {
+        drawEllipse(layer.data, x0, y0, x1, y1, colorPicker.value);
+      }
+    }
+
+    // Simple Bresenham line algorithm
+    function drawLine(data, x0, y0, x1, y1, color) {
+      let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+      let sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1;
+      let err = dx - dy;
+      while (true) {
+        data[y0][x0] = color;
+        if (symmetryMode) data[y0][gridWidth - 1 - x0] = color;
+        if (x0 === x1 && y0 === y1) break;
+        let e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x0 += sx; }
+        if (e2 < dx) { err += dx; y0 += sy; }
+      }
+      drawComposite();
+    }
+
+    // Draw rectangle outline
+    function drawRect(data, x0, y0, x1, y1, color) {
+      let xMin = Math.min(x0, x1), xMax = Math.max(x0, x1);
+      let yMin = Math.min(y0, y1), yMax = Math.max(y0, y1);
+      for (let x = xMin; x <= xMax; x++) {
+        data[yMin][x] = color;
+        data[yMax][x] = color;
+        if (symmetryMode) {
+          data[yMin][gridWidth - 1 - x] = color;
+          data[yMax][gridWidth - 1 - x] = color;
+        }
+      }
+      for (let y = yMin; y <= yMax; y++) {
+        data[y][xMin] = color;
+        data[y][xMax] = color;
+        if (symmetryMode) {
+          data[y][gridWidth - 1 - xMin] = color;
+          data[y][gridWidth - 1 - xMax] = color;
+        }
+      }
+      drawComposite();
+    }
+
+    // Draw ellipse (simplified)
+    function drawEllipse(data, x0, y0, x1, y1, color) {
+      let centerX = Math.floor((x0 + x1) / 2), centerY = Math.floor((y0 + y1) / 2);
+      let rx = Math.floor(Math.abs(x1 - x0) / 2), ry = Math.floor(Math.abs(y1 - y0) / 2);
+      for (let y = -ry; y <= ry; y++) {
+        for (let x = -rx; x <= rx; x++) {
+          if ((x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1) {
+            let drawX = centerX + x;
+            let drawY = centerY + y;
+            data[drawY][drawX] = color;
+            if (symmetryMode) {
+              data[drawY][gridWidth - 1 - drawX] = color;
+            }
+          }
+        }
+      }
+      drawComposite();
+    }
+
+    /**********************
+     * Undo / Redo & History
+     **********************/
+    function saveHistory() {
+      historyStack.push(JSON.stringify(project));
+      redoStack = [];
+    }
+    function undo() {
+      if (historyStack.length > 1) {
+        redoStack.push(historyStack.pop());
+        project = JSON.parse(historyStack[historyStack.length - 1]);
+        updateLayersUI();
+        updateFramesUI();
+        drawComposite();
+      }
+    }
+    function redo() {
+      if (redoStack.length) {
+        historyStack.push(redoStack.pop());
+        project = JSON.parse(historyStack[historyStack.length - 1]);
+        updateLayersUI();
+        updateFramesUI();
+        drawComposite();
+      }
+    }
+    document.getElementById('undoBtn').addEventListener('click', undo);
+    document.getElementById('redoBtn').addEventListener('click', redo);
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      const frame = project.frames[project.activeFrame];
+      frame.layers[frame.activeLayer].data = createEmptyLayer();
+      drawComposite();
+      saveHistory();
+    });
+
+    /**********************
+     * Export, Save & Load
+     **********************/
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'pixel-art.png';
+      link.href = compositeCanvas.toDataURL();
+      link.click();
+    });
+    document.getElementById('saveProjectBtn').addEventListener('click', () => {
+      localStorage.setItem('pixelArtProject', JSON.stringify(project));
+      alert('Project saved!');
+    });
+    document.getElementById('loadProjectBtn').addEventListener('click', () => {
+      let loaded = localStorage.getItem('pixelArtProject');
+      if (loaded) {
+        project = JSON.parse(loaded);
+        updateLayersUI();
+        updateFramesUI();
+        drawComposite();
+        alert('Project loaded!');
+      } else {
+        alert('No saved project found.');
+      }
+    });
+
+    /**********************
+     * Theme Toggle
+     **********************/
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      if (theme === 'dark') {
+        document.body.classList.add('light-theme');
+        theme = 'light';
+      } else {
+        document.body.classList.remove('light-theme');
+        theme = 'dark';
+      }
+    });
+
+    /**********************
+     * Keyboard Shortcuts
+     **********************/
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+      if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+      if (e.key === 'p') selectTool('pencil');
+      if (e.key === 'e') selectTool('eraser');
+      if (e.key === 'f') selectTool('fill');
+      if (e.key === 'l') selectTool('line');
+      if (e.key === 'r') selectTool('rect');
+      if (e.key === 'o') selectTool('ellipse');
+      if (e.key === 'g') selectTool('gradient');
+      if (e.key === 'y') { symmetryMode = !symmetryMode; symmetryBtn.classList.toggle('active', symmetryMode); }
+    });
+
+    // Initial draw
+    drawComposite();
+  </script>
+</body>
+</html>
