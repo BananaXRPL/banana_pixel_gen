@@ -341,7 +341,6 @@
       saveHistory();
       drawComposite();
     }
-    initProject();
 
     /**********************
      * Canvas & Composite Rendering
@@ -916,6 +915,9 @@
       if (e.key === 'y') { symmetryMode = !symmetryMode; symmetryBtn.classList.toggle('active', symmetryMode); }
     });
 
+    // Ensure project is initialized after ctx and DOM are defined
+    initProject();
+    
     // Initial draw
     drawComposite();
   </script>
