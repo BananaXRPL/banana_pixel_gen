@@ -96,13 +96,26 @@
       justify-content: space-between;
       color: #222;
     }
-    #main { 
+    #main, #compositeCanvas { 
       grid-area: main; 
       background: #fff; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
       padding: 20px;
+          
+      /* Disable text selection */
+      -webkit-user-select: none; /* Chrome, Safari, Opera */
+      -moz-user-select: none;    /* Firefox */
+      -ms-user-select: none;     /* IE/Edge */
+      user-select: none;         /* Standard */
+      /* Disable touch gestures such as double-tap to zoom */
+      touch-action: none;
+      /* Optional: Disable tap highlight color on mobile browsers */
+      -webkit-tap-highlight-color: transparent;
+      /* Optional: Disable callouts (iOS) */
+      -webkit-touch-callout: none;
+      
     }
     #timeline { 
       grid-area: timeline; 
