@@ -23,8 +23,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: url('https://via.placeholder.com/1920x1080/000000/ff00ff?text=Retro+Synthwave+Scene') no-repeat center center;
-      background-size: cover;
+      background: #000; /* Black background */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -39,25 +38,52 @@
       margin-bottom: 20px;
     }
     #landingPage h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
+      font-size: 2.8rem;
+      color: #FFEB3B; /* Banana yellow */
+      margin-bottom: 5px;
     }
-    #landingPage p {
-      font-size: 1.2rem;
-      margin-bottom: 30px;
+    #landingPage h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
     }
     #launchAppBtn {
       padding: 12px 20px;
       font-size: 1.1rem;
       border: none;
       border-radius: 4px;
-      background: #007acc;
-      color: #fff;
+      background: #FFEB3B; /* Banana yellow */
+      color: #000;
       cursor: pointer;
       transition: background 0.2s;
     }
     #launchAppBtn:hover {
-      background: #005a99;
+      background: #F9A825;
+    }
+    #landingPage .sponsor {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #ccc;
+    }
+
+    /* Landing Page Footer with Social Links */
+    .landing-footer {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+    }
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .social-links a {
+      color: #FFEB3B; /* Banana yellow */
+      font-size: 1.2rem;
+      text-decoration: none;
+    }
+    .social-links a:hover {
+      text-decoration: underline;
     }
 
     /* =============================
@@ -96,26 +122,13 @@
       justify-content: space-between;
       color: #222;
     }
-    #main, #compositeCanvas { 
+    #main { 
       grid-area: main; 
       background: #fff; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
       padding: 20px;
-          
-      /* Disable text selection */
-      -webkit-user-select: none; /* Chrome, Safari, Opera */
-      -moz-user-select: none;    /* Firefox */
-      -ms-user-select: none;     /* IE/Edge */
-      user-select: none;         /* Standard */
-      /* Disable touch gestures such as double-tap to zoom */
-      touch-action: none;
-      /* Optional: Disable tap highlight color on mobile browsers */
-      -webkit-tap-highlight-color: transparent;
-      /* Optional: Disable callouts (iOS) */
-      -webkit-touch-callout: none;
-      
     }
     #timeline { 
       grid-area: timeline; 
@@ -148,12 +161,26 @@
       margin-right: 5px;
       font-size: 0.9rem;
     }
+    /* Board Size Controls */
+    #boardSizeControls {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 10px;
+    }
+    #boardSizeControls label {
+      margin-right: 5px;
+      font-size: 0.9rem;
+    }
+    #boardSizeControls input {
+      width: 50px;
+      margin-right: 5px;
+    }
     /* Sidebar Layers */
     .layer-item {
       background: #ccc; 
       margin-bottom: 8px; 
       padding: 6px; 
-      border-radius: 4px; 
+ repetição      border-radius: 4px; 
       display: flex; 
       align-items: center; 
       justify-content: space-between;
@@ -203,8 +230,18 @@
       padding: 10px 15px;
       font-size: 0.9rem;
     }
-    footer .footer-left a { margin-right: 10px; }
-    
+    .footer-left {
+      display: flex;
+      gap: 15px;
+    }
+    .footer-left a {
+      color: #ccc;
+      text-decoration: none;
+    }
+    .footer-left a:hover {
+      text-decoration: underline;
+    }
+
     /* =============================
        Light Theme (if toggled)
        ============================= */
@@ -216,16 +253,42 @@
     .light-theme #timeline { background: #ddd; }
     .light-theme .toolbar-btn { background: #aaa; color: #222; }
     .light-theme footer { background: #ddd; color: #222; }
+
+    /* =============================
+       Mobile Responsiveness
+       ============================= */
+    @media (max-width: 600px) {
+      .social-links {
+        flex-direction: column;
+        gap: 10px;
+      }
+      footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .footer-left {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- Landing Page -->
   <div id="landingPage">
-    <!-- Replace with your actual logo image -->
     <img src="https://via.placeholder.com/150?text=Logo" alt="$BANANA Logo" class="logo">
-    <h1>$BANANA Business Pixel Generator</h1>
-    <p>Unleash Your Pixel Creativity</p>
+    <h1 style="color:#FFEB3B;">$BANANA Business</h1>
+    <h2>8-Bit Pixel Generator</h2>
     <button id="launchAppBtn">Launch App</button>
+    <div class="sponsor">Sponsored by Uga Labz</div>
+    <footer class="landing-footer">
+      <div class="social-links">
+        <a href="https://www.instagram.com/bananaXRPL" target="_blank" aria-label="Visit BananaXRPL on Instagram">Instagram</a>
+        <a href="https://x.com/bananaXRPL" target="_blank" aria-label="Visit BananaXRPL on X">X</a>
+        <a href="https://discord.gg/gehQHeVV" target="_blank" aria-label="Join BananaXRPL on Discord">Discord</a>
+      </div>
+    </footer>
   </div>
 
   <!-- Editor Container -->
@@ -272,6 +335,14 @@
           <label for="checkerboardToggle">Checkerboard:</label>
           <input type="checkbox" id="checkerboardToggle">
         </div>
+        <!-- Board Size Controls -->
+        <div id="boardSizeControls">
+          <label for="boardWidthInput">Width:</label>
+          <input type="number" id="boardWidthInput" value="32" min="1">
+          <label for="boardHeightInput">Height:</label>
+          <input type="number" id="boardHeightInput" value="32" min="1">
+          <button id="setBoardSizeBtn" class="toolbar-btn">Set Board Size</button>
+        </div>
       </div>
       <!-- Main Canvas Area -->
       <div id="main">
@@ -291,8 +362,9 @@
   <!-- Footer with Social Links -->
   <footer>
     <div class="footer-left">
-      <a href="https://www.x.com/bananaXRPL" target="_blank">X</a>
-      <a href="https://www.instagram.com/bananaXRPL" target="_blank">Instagram</a>
+      <a href="https://www.instagram.com/bananaXRPL" target="_blank" aria-label="Visit BananaXRPL on Instagram">Instagram</a>
+      <a href="https://x.com/bananaXRPL" target="_blank" aria-label="Visit BananaXRPL on X">X</a>
+      <a href="https://discord.gg/gehQHeVV" target="_blank" aria-label="Join BananaXRPL on Discord">Discord</a>
     </div>
     <div class="footer-right">
       Made by the Banana King
@@ -311,7 +383,7 @@
     /**********************
      * Editor Configuration & Variables
      **********************/
-    const gridWidth = 32, gridHeight = 32, defaultZoom = 20;
+    let gridWidth = 32, gridHeight = 32, defaultZoom = 20;
     let zoom = defaultZoom;
     let currentTool = 'pencil'; // Options: pencil, eraser, fill, line, rect, ellipse, gradient
     let symmetryMode = false;
@@ -329,7 +401,7 @@
     let historyStack = [];
     let redoStack = [];
 
-    // Utility: Create an empty layer (2D array)
+    // Utility: Create an empty layer (2D array) based on current grid dimensions
     function createEmptyLayer() {
       let layer = [];
       for (let y = 0; y < gridHeight; y++) {
@@ -341,6 +413,26 @@
       }
       return layer;
     }
+
+    // Reinitialize canvas and project with new board size
+    function setBoardSize(newWidth, newHeight) {
+      gridWidth = newWidth;
+      gridHeight = newHeight;
+      compositeCanvas.width = gridWidth * zoom;
+      compositeCanvas.height = gridHeight * zoom;
+      initProject();
+    }
+
+    // Event listener for Board Size controls
+    document.getElementById('setBoardSizeBtn').addEventListener('click', () => {
+      const newWidth = parseInt(document.getElementById('boardWidthInput').value);
+      const newHeight = parseInt(document.getElementById('boardHeightInput').value);
+      if (newWidth > 0 && newHeight > 0) {
+        setBoardSize(newWidth, newHeight);
+      } else {
+        alert('Please enter valid board dimensions.');
+      }
+    });
 
     // Initialize project with one frame & one layer
     function initProject() {
@@ -405,6 +497,8 @@
     // Draw the composite canvas (combining background, reference image, onion skin, and all layers)
     function drawComposite() {
       drawBackground();
+      // Ensure reference image is drawn pixelated
+      ctx.imageSmoothingEnabled = false;
       // Draw reference image behind layers, if available
       if (referenceImage && referenceImage.complete) {
         ctx.globalAlpha = 0.5;
@@ -660,10 +754,12 @@
     });
 
     /**********************
-     * Canvas Drawing Interaction
+     * Canvas Drawing Interaction (Mouse & Touch)
      **********************/
     let isDrawing = false;
     let startX, startY;
+
+    // Mouse Events
     compositeCanvas.addEventListener('mousedown', (e) => {
       const pos = getCanvasCoordinates(e);
       startX = pos.x;
@@ -681,7 +777,6 @@
       if (currentTool === 'pencil' || currentTool === 'eraser') {
         drawPixel(pos.x, pos.y);
       } else {
-        // For shape tools, show a preview
         drawComposite();
         previewShape(startX, startY, pos.x, pos.y);
       }
@@ -696,11 +791,50 @@
       drawComposite();
     });
 
-    // Get grid coordinates from canvas mouse event
+    // Touch Events for Mobile & Tablet
+    compositeCanvas.addEventListener('touchstart', function(e) {
+      e.preventDefault(); // Prevent scrolling
+      const pos = getCanvasCoordinates(e);
+      startX = pos.x;
+      startY = pos.y;
+      isDrawing = true;
+      saveHistory();
+      if (currentTool === 'fill') {
+        performFill(pos.x, pos.y);
+        isDrawing = false;
+      }
+    });
+    compositeCanvas.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      if (!isDrawing) return;
+      const pos = getCanvasCoordinates(e);
+      if (currentTool === 'pencil' || currentTool === 'eraser') {
+        drawPixel(pos.x, pos.y);
+      } else {
+        drawComposite();
+        previewShape(startX, startY, pos.x, pos.y);
+      }
+    });
+    compositeCanvas.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      // Since touchend doesn't provide coordinates, we rely on the last touchmove position.
+      isDrawing = false;
+      drawComposite();
+    });
+
+    // Get coordinates from mouse or touch events
     function getCanvasCoordinates(e) {
+      let clientX, clientY;
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
       const rect = compositeCanvas.getBoundingClientRect();
-      const x = Math.floor((e.clientX - rect.left) / zoom);
-      const y = Math.floor((e.clientY - rect.top) / zoom);
+      const x = Math.floor((clientX - rect.left) / zoom);
+      const y = Math.floor((clientY - rect.top) / zoom);
       return { x, y };
     }
 
@@ -884,7 +1018,7 @@
     });
     document.getElementById('saveProjectBtn').addEventListener('click', () => {
       localStorage.setItem('pixelArtProject', JSON.stringify(project));
-      alert('Project saved!');
+      alert('Project saved! (Saved to your browser’s local storage)');
     });
     document.getElementById('loadProjectBtn').addEventListener('click', () => {
       let loaded = localStorage.getItem('pixelArtProject');
@@ -900,7 +1034,7 @@
     });
 
     /**********************
-     * Theme Toggle
+     * Theme Toggle (Dark/Light Mode)
      **********************/
     document.getElementById('themeToggleBtn').addEventListener('click', () => {
       if (theme === 'dark') {
@@ -928,11 +1062,8 @@
       if (e.key === 'y') { symmetryMode = !symmetryMode; symmetryBtn.classList.toggle('active', symmetryMode); }
     });
 
-    // Ensure project is initialized after ctx and DOM are defined
+    // Initialize the project after all functions and event listeners are defined
     initProject();
-    
-    // Initial draw
-    drawComposite();
   </script>
 </body>
 </html>
