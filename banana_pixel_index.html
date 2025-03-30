@@ -4,26 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>$BANANA Business Pixel Generator</title>
-  <!-- Google Fonts: Roboto for UI and Press Start 2P for Landing Page -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.min.js"></script>
   <style>
-    /* Global Reset & Base Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Roboto', sans-serif; background: #222; color: #eee; }
     a { color: #007acc; text-decoration: none; }
     a:hover { text-decoration: underline; }
 
-    /* =============================
-       Landing Page Styles
-       ============================= */
     #landingPage {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #000; /* Black background */
+      background: #000;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -33,218 +29,47 @@
       padding: 20px;
       font-family: 'Press Start 2P', cursive;
     }
-    #landingPage .logo {
-      width: 150px;
-      margin-bottom: 20px;
-    }
-    #landingPage h1 {
-      font-size: 2.8rem;
-      color: #FFEB3B; /* Banana yellow */
-      margin-bottom: 5px;
-    }
-    #landingPage h2 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-    }
-    #launchAppBtn {
-      padding: 12px 20px;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 4px;
-      background: #FFEB3B; /* Banana yellow */
-      color: #000;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    #launchAppBtn:hover {
-      background: #F9A825;
-    }
-    #landingPage .sponsor {
-      margin-top: 20px;
-      font-size: 1rem;
-      color: #ccc;
-    }
+    #landingPage .logo { width: 150px; margin-bottom: 20px; }
+    #landingPage h1 { font-size: 2.8rem; color: #FFEB3B; margin-bottom: 5px; }
+    #landingPage h2 { font-size: 1.8rem; margin-bottom: 20px; }
+    #launchAppBtn { padding: 12px 20px; font-size: 1.1rem; border: none; border-radius: 4px; background: #FFEB3B; color: #000; cursor: pointer; transition: background 0.2s; }
+    #launchAppBtn:hover { background: #F9A825; }
+    #landingPage .sponsor { margin-top: 20px; font-size: 1rem; color: #ccc; }
+    .landing-footer { position: absolute; bottom: 20px; width: 100%; text-align: center; }
+    .social-links { display: flex; justify-content: center; gap: 20px; }
+    .social-links a { color: #FFEB3B; font-size: 1.2rem; text-decoration: none; }
+    .social-links a:hover { text-decoration: underline; }
 
-    /* Landing Page Footer with Social Links */
-    .landing-footer {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
-    }
-    .social-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-    .social-links a {
-      color: #FFEB3B; /* Banana yellow */
-      font-size: 1.2rem;
-      text-decoration: none;
-    }
-    .social-links a:hover {
-      text-decoration: underline;
-    }
-
-    /* =============================
-       Editor Container & Banana Theme
-       ============================= */
-    #editorContainer {
-      display: none; /* Hidden until "Launch App" is clicked */
-      background: #FFFDE7; /* very light yellow */
-    }
+    #editorContainer { display: none; background: #FFFDE7; }
     #container {
       display: grid;
       grid-template-columns: 220px 1fr;
       grid-template-rows: auto 1fr 150px;
-      grid-template-areas:
-        "sidebar header"
-        "sidebar main"
-        "timeline timeline";
+      grid-template-areas: "sidebar header" "sidebar main" "timeline timeline";
       min-height: 100vh;
     }
-    #sidebar { 
-      grid-area: sidebar; 
-      background: #FFF9C4; /* light banana */
-      padding: 15px; 
-      overflow-y: auto;
-      border-right: 1px solid #ccc;
-      color: #222;
-    }
+    #sidebar { grid-area: sidebar; background: #FFF9C4; padding: 15px; overflow-y: auto; border-right: 1px solid #ccc; color: #222; }
     #sidebar h3 { margin-bottom: 10px; }
-    #header { 
-      grid-area: header; 
-      background: #FFEB3B; /* banana yellow */
-      padding: 10px 15px; 
-      display: flex; 
-      flex-wrap: wrap; 
-      align-items: center; 
-      justify-content: space-between;
-      color: #222;
-    }
-    #main { 
-      grid-area: main; 
-      background: #fff; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      padding: 20px;
-    }
-    #timeline { 
-      grid-area: timeline; 
-      background: #FFECB3; 
-      padding: 10px 15px; 
-      display: flex; 
-      align-items: center; 
-      overflow-x: auto;
-      color: #222;
-    }
-    .toolbar-btn {
-      padding: 8px 12px; 
-      margin: 3px; 
-      border: none; 
-      border-radius: 4px; 
-      background: #FBC02D; 
-      color: #222; 
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+    #header { grid-area: header; background: #FFEB3B; padding: 10px 15px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; color: #222; }
+    #main { grid-area: main; background: #fff; display: flex; align-items: center; justify-content: center; padding: 20px; overflow: hidden; position: relative; }
+    #timeline { grid-area: timeline; background: #FFECB3; padding: 10px 15px; display: flex; align-items: center; overflow-x: auto; color: #222; }
+    .toolbar-btn { padding: 8px 12px; margin: 3px; border: none; border-radius: 4px; background: #FBC02D; color: #222; cursor: pointer; transition: background 0.2s; }
     .toolbar-btn:hover { background: #F9A825; }
     .toolbar-btn.active { background: #F57F17; }
-    /* Additional Background Controls */
-    #bgControls {
-      display: inline-flex;
-      align-items: center;
-      margin-left: 10px;
-    }
-    #bgControls label {
-      margin-right: 5px;
-      font-size: 0.9rem;
-    }
-    /* Board Size Controls */
-    #boardSizeControls {
-      display: inline-flex;
-      align-items: center;
-      margin-left: 10px;
-    }
-    #boardSizeControls label {
-      margin-right: 5px;
-      font-size: 0.9rem;
-    }
-    #boardSizeControls input {
-      width: 50px;
-      margin-right: 5px;
-    }
-    /* Sidebar Layers */
-    .layer-item {
-      background: #ccc; 
-      margin-bottom: 8px; 
-      padding: 6px; 
- repetição      border-radius: 4px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+    #bgControls, #boardSizeControls { display: inline-flex; align-items: center; margin-left: 10px; }
+    #bgControls label, #boardSizeControls label { margin-right: 5px; font-size: 0.9rem; }
+    #boardSizeControls input { width: 50px; margin-right: 5px; }
+    .layer-item { background: #ccc; margin-bottom: 8px; padding: 6px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background 0.2s; }
     .layer-item.active { background: #F57F17; }
     .layer-controls button { margin-left: 3px; font-size: 0.8rem; }
-    /* Frames Timeline */
-    .frame-item {
-      background: #FBC02D; 
-      padding: 8px; 
-      margin-right: 8px; 
-      border-radius: 4px; 
-      cursor: pointer;
-      transition: border 0.2s;
-    }
+    .frame-item { background: #FBC02D; padding: 8px; margin-right: 8px; border-radius: 4px; cursor: pointer; transition: border 0.2s; }
     .frame-item.active { border: 2px solid #F57F17; }
-    /* Canvas */
-    canvas {
-      background: transparent; 
-      image-rendering: pixelated; 
-      border: 1px solid #666;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    /* Reference Upload Controls */
-    #refControls input[type="file"] {
-      display: inline-block;
-      margin-right: 5px;
-      padding: 5px;
-      background: #FBC02D;
-      color: #222;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    /* =============================
-       Footer Styles (with Socials)
-       ============================= */
-    footer {
-      background: #333;
-      color: #ccc;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 15px;
-      font-size: 0.9rem;
-    }
-    .footer-left {
-      display: flex;
-      gap: 15px;
-    }
-    .footer-left a {
-      color: #ccc;
-      text-decoration: none;
-    }
-    .footer-left a:hover {
-      text-decoration: underline;
-    }
-
-    /* =============================
-       Light Theme (if toggled)
-       ============================= */
+    canvas { background: transparent; image-rendering: pixelated; border: 1px solid #666; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+    #refControls input[type="file"] { display: inline-block; margin-right: 5px; padding: 5px; background: #FBC02D; color: #222; border: none; border-radius: 4px; cursor: pointer; }
+    footer { background: #333; color: #ccc; display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; font-size: 0.9rem; }
+    .footer-left { display: flex; gap: 15px; }
+    .footer-left a { color: #ccc; text-decoration: none; }
+    .footer-left a:hover { text-decoration: underline; }
     .light-theme { background: #f0f0f0; color: #222; }
     .light-theme a { color: #007acc; }
     .light-theme #sidebar { background: #eee; color: #222; border-right: 1px solid #ccc; }
@@ -253,29 +78,14 @@
     .light-theme #timeline { background: #ddd; }
     .light-theme .toolbar-btn { background: #aaa; color: #222; }
     .light-theme footer { background: #ddd; color: #222; }
-
-    /* =============================
-       Mobile Responsiveness
-       ============================= */
     @media (max-width: 600px) {
-      .social-links {
-        flex-direction: column;
-        gap: 10px;
-      }
-      footer {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-      }
-      .footer-left {
-        flex-direction: column;
-        gap: 10px;
-      }
+      .social-links { flex-direction: column; gap: 10px; }
+      footer { flex-direction: column; align-items: center; gap: 10px; }
+      .footer-left { flex-direction: column; gap: 10px; }
     }
   </style>
 </head>
 <body>
-  <!-- Landing Page -->
   <div id="landingPage">
     <img src="https://via.placeholder.com/150?text=Logo" alt="$BANANA Logo" class="logo">
     <h1 style="color:#FFEB3B;">$BANANA Business</h1>
@@ -291,16 +101,13 @@
     </footer>
   </div>
 
-  <!-- Editor Container -->
   <div id="editorContainer">
     <div id="container">
-      <!-- Sidebar: Layers Panel -->
       <div id="sidebar">
         <h3>Layers</h3>
         <div id="layersList"></div>
         <button id="addLayerBtn" class="toolbar-btn">Add Layer</button>
       </div>
-      <!-- Top Toolbar -->
       <div id="header">
         <div>
           <button id="pencilBtn" class="toolbar-btn active" title="Pencil (P)">Pencil</button>
@@ -324,18 +131,17 @@
           <button id="redoBtn" class="toolbar-btn" title="Redo (Ctrl+Y)">Redo</button>
           <button id="clearBtn" class="toolbar-btn" title="Clear Canvas">Clear</button>
           <button id="exportBtn" class="toolbar-btn" title="Export PNG">Export</button>
+          <button id="exportLayersBtn" class="toolbar-btn" title="Export Layers">Export Layers</button>
           <button id="saveProjectBtn" class="toolbar-btn" title="Save Project">Save</button>
           <button id="loadProjectBtn" class="toolbar-btn" title="Load Project">Load</button>
           <button id="themeToggleBtn" class="toolbar-btn" title="Toggle Theme">Toggle Theme</button>
         </div>
-        <!-- Background Controls -->
         <div id="bgControls">
           <label for="bgColorPicker">BG Color:</label>
           <input type="color" id="bgColorPicker" value="#ffffff">
           <label for="checkerboardToggle">Checkerboard:</label>
           <input type="checkbox" id="checkerboardToggle">
         </div>
-        <!-- Board Size Controls -->
         <div id="boardSizeControls">
           <label for="boardWidthInput">Width:</label>
           <input type="number" id="boardWidthInput" value="32" min="1">
@@ -344,86 +150,73 @@
           <button id="setBoardSizeBtn" class="toolbar-btn">Set Board Size</button>
         </div>
       </div>
-      <!-- Main Canvas Area -->
       <div id="main">
         <canvas id="compositeCanvas" width="640" height="640"></canvas>
       </div>
-      <!-- Timeline: Frame Panel -->
       <div id="timeline">
         <h3 style="margin-right:10px;">Frames:</h3>
         <div id="framesList" style="display:flex;"></div>
         <button id="addFrameBtn" class="toolbar-btn">Add Frame</button>
         <button id="removeFrameBtn" class="toolbar-btn">Remove Frame</button>
         <button id="onionSkinBtn" class="toolbar-btn">Onion Skin</button>
+        <button id="playBtn" class="toolbar-btn">Play</button>
+        <button id="exportGifBtn" class="toolbar-btn">Export GIF</button>
       </div>
     </div>
   </div>
 
-  <!-- Footer with Social Links -->
   <footer>
     <div class="footer-left">
       <a href="https://www.instagram.com/bananaXRPL" target="_blank" aria-label="Visit BananaXRPL on Instagram">Instagram</a>
       <a href="https://x.com/bananaXRPL" target="_blank" aria-label="Visit BananaXRPL on X">X</a>
       <a href="https://discord.gg/gehQHeVV" target="_blank" aria-label="Join BananaXRPL on Discord">Discord</a>
     </div>
-    <div class="footer-right">
-      Made by the Banana King
-    </div>
+    <div class="footer-right">Made by the Banana King</div>
   </footer>
 
   <script>
-    /**********************
-     * Landing Page Transition
-     **********************/
     document.getElementById('launchAppBtn').addEventListener('click', () => {
       document.getElementById('landingPage').style.display = 'none';
       document.getElementById('editorContainer').style.display = 'block';
     });
 
-    /**********************
-     * Editor Configuration & Variables
-     **********************/
     let gridWidth = 32, gridHeight = 32, defaultZoom = 20;
     let zoom = defaultZoom;
-    let currentTool = 'pencil'; // Options: pencil, eraser, fill, line, rect, ellipse, gradient
+    let zoomLevel = 1;
+    let offsetX = 0, offsetY = 0;
+    let currentTool = 'pencil';
     let symmetryMode = false;
     let onionSkin = false;
     let theme = 'dark';
     let referenceImage = null;
+    let isDrawing = false;
+    let isPanning = false;
+    let isPlaying = false;
+    let startX, startY, lastDist = 0;
 
-    /**********************
-     * Project Structure
-     * A project is made of frames, and each frame contains layers.
-     **********************/
     let project = { frames: [], activeFrame: 0 };
-
-    // History for undo/redo
     let historyStack = [];
     let redoStack = [];
+    let lastState = null;
 
-    // Utility: Create an empty layer (2D array) based on current grid dimensions
     function createEmptyLayer() {
       let layer = [];
       for (let y = 0; y < gridHeight; y++) {
-        let row = [];
-        for (let x = 0; x < gridWidth; x++) {
-          row.push(null); // null = transparent
-        }
-        layer.push(row);
+        layer.push(Array(gridWidth).fill(null));
       }
       return layer;
     }
 
-    // Reinitialize canvas and project with new board size
     function setBoardSize(newWidth, newHeight) {
       gridWidth = newWidth;
       gridHeight = newHeight;
-      compositeCanvas.width = gridWidth * zoom;
-      compositeCanvas.height = gridHeight * zoom;
+      compositeCanvas.width = gridWidth * zoom * zoomLevel;
+      compositeCanvas.height = gridHeight * zoom * zoomLevel;
+      offsetX = (compositeCanvas.width - gridWidth * zoom * zoomLevel) / 2;
+      offsetY = (compositeCanvas.height - gridHeight * zoom * zoomLevel) / 2;
       initProject();
     }
 
-    // Event listener for Board Size controls
     document.getElementById('setBoardSizeBtn').addEventListener('click', () => {
       const newWidth = parseInt(document.getElementById('boardWidthInput').value);
       const newHeight = parseInt(document.getElementById('boardHeightInput').value);
@@ -434,7 +227,6 @@
       }
     });
 
-    // Initialize project with one frame & one layer
     function initProject() {
       project.frames = [];
       let frame = { layers: [], activeLayer: 0 };
@@ -447,15 +239,11 @@
       drawComposite();
     }
 
-    /**********************
-     * Canvas & Composite Rendering
-     **********************/
     const compositeCanvas = document.getElementById('compositeCanvas');
     const ctx = compositeCanvas.getContext('2d');
     compositeCanvas.width = gridWidth * zoom;
     compositeCanvas.height = gridHeight * zoom;
 
-    // Draw background: either solid or checkerboard
     function drawBackground() {
       const checkerboard = document.getElementById('checkerboardToggle').checked;
       const bgColor = document.getElementById('bgColorPicker').value;
@@ -479,43 +267,36 @@
       }
     }
 
-    // Darken a hex color by percent (negative for darkening)
     function shadeColor(color, percent) {
-      let num = parseInt(color.slice(1),16),
+      let num = parseInt(color.slice(1), 16),
           amt = Math.round(2.55 * percent),
           R = (num >> 16) + amt,
           G = (num >> 8 & 0x00FF) + amt,
           B = (num & 0x0000FF) + amt;
-      return "#" + (
-        0x1000000 +
-        (R<255? (R<1?0:R):255)*0x10000 +
-        (G<255? (G<1?0:G):255)*0x100 +
-        (B<255? (B<1?0:B):255)
-      ).toString(16).slice(1);
+      return "#" + (0x1000000 + (R<255?(R<1?0:R):255)*0x10000 + (G<255?(G<1?0:G):255)*0x100 + (B<255?(B<1?0:B):255)).toString(16).slice(1);
     }
 
-    // Draw the composite canvas (combining background, reference image, onion skin, and all layers)
     function drawComposite() {
+      ctx.save();
+      ctx.clearRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+      ctx.translate(offsetX, offsetY);
+      ctx.scale(zoomLevel, zoomLevel);
       drawBackground();
-      // Ensure reference image is drawn pixelated
       ctx.imageSmoothingEnabled = false;
-      // Draw reference image behind layers, if available
       if (referenceImage && referenceImage.complete) {
         ctx.globalAlpha = 0.5;
-        ctx.drawImage(referenceImage, 0, 0, compositeCanvas.width, compositeCanvas.height);
+        ctx.drawImage(referenceImage, 0, 0, gridWidth * zoom, gridHeight * zoom);
         ctx.globalAlpha = 1;
       }
       const frame = project.frames[project.activeFrame];
-      // Onion skin: if enabled, draw the previous frame semi‑transparently
-      if (onionSkin && project.activeFrame > 0) {
-        const prevFrame = project.frames[project.activeFrame - 1];
-        drawFrame(prevFrame, 0.3);
+      if (onionSkin && project.activeFrame > 0 && !isPlaying) { // Disable onion skin during playback
+        drawFrame(project.frames[project.activeFrame - 1], 0.3);
       }
       drawFrame(frame, 1);
       drawGrid();
+      ctx.restore();
     }
 
-    // Draw a single frame with a given opacity
     function drawFrame(frame, opacity) {
       frame.layers.forEach(layer => {
         if (layer.visible) {
@@ -534,10 +315,9 @@
       ctx.globalAlpha = 1;
     }
 
-    // Draw grid lines over the canvas
     function drawGrid() {
       ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1 / zoomLevel;
       for (let x = 0; x <= gridWidth; x++) {
         ctx.beginPath();
         ctx.moveTo(x * zoom, 0);
@@ -552,9 +332,6 @@
       }
     }
 
-    /**********************
-     * Layers UI & Functions
-     **********************/
     const layersList = document.getElementById('layersList');
     function updateLayersUI() {
       layersList.innerHTML = '';
@@ -563,7 +340,6 @@
         const div = document.createElement('div');
         div.className = 'layer-item' + (index === frame.activeLayer ? ' active' : '');
         div.innerHTML = `<span>${layer.name}</span>`;
-        // Controls: toggle visibility, move up/down, delete
         const controls = document.createElement('div');
         controls.className = 'layer-controls';
         const toggleBtn = document.createElement('button');
@@ -607,9 +383,7 @@
           e.stopPropagation();
           if (frame.layers.length > 1) {
             frame.layers.splice(index, 1);
-            if (frame.activeLayer >= frame.layers.length) {
-              frame.activeLayer = frame.layers.length - 1;
-            }
+            if (frame.activeLayer >= frame.layers.length) frame.activeLayer = frame.layers.length - 1;
             updateLayersUI();
             drawComposite();
           }
@@ -630,9 +404,6 @@
       saveHistory();
     });
 
-    /**********************
-     * Frames (Animation) UI & Functions
-     **********************/
     const framesList = document.getElementById('framesList');
     function updateFramesUI() {
       framesList.innerHTML = '';
@@ -650,7 +421,6 @@
       });
     }
     document.getElementById('addFrameBtn').addEventListener('click', () => {
-      // Duplicate the current frame
       let currentFrame = project.frames[project.activeFrame];
       let newFrame = {
         layers: currentFrame.layers.map(layer => ({
@@ -681,10 +451,52 @@
       document.getElementById('onionSkinBtn').classList.toggle('active', onionSkin);
       drawComposite();
     });
+    document.getElementById('playBtn').addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      document.getElementById('playBtn').textContent = isPlaying ? 'Stop' : 'Play';
+      if (isPlaying) animateFrames();
+    });
+    document.getElementById('exportGifBtn').addEventListener('click', () => {
+      const gif = new GIF({ workers: 2, quality: 10 });
+      project.frames.forEach(frame => {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = gridWidth * zoom;
+        tempCanvas.height = gridHeight * zoom;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.fillStyle = document.getElementById('bgColorPicker').value;
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        frame.layers.forEach(layer => {
+          if (layer.visible) {
+            for (let y = 0; y < gridHeight; y++) {
+              for (let x = 0; x < gridWidth; x++) {
+                if (layer.data[y][x]) {
+                  tempCtx.fillStyle = layer.data[y][x];
+                  tempCtx.fillRect(x * zoom, y * zoom, zoom, zoom);
+                }
+              }
+            }
+          }
+        });
+        gif.addFrame(tempCtx, { delay: 100 });
+      });
+      gif.on('finished', blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'animation.gif';
+        link.click();
+      });
+      gif.render();
+    });
 
-    /**********************
-     * Toolbar & Tool Selection
-     **********************/
+    function animateFrames() {
+      if (!isPlaying) return;
+      project.activeFrame = (project.activeFrame + 1) % project.frames.length;
+      updateFramesUI();
+      updateLayersUI();
+      drawComposite();
+      setTimeout(animateFrames, 100);
+    }
+
     const pencilBtn = document.getElementById('pencilBtn');
     const eraserBtn = document.getElementById('eraserBtn');
     const fillBtn = document.getElementById('fillBtn');
@@ -696,9 +508,7 @@
 
     function selectTool(tool) {
       currentTool = tool;
-      [pencilBtn, eraserBtn, fillBtn, lineBtn, rectBtn, ellipseBtn, gradientBtn].forEach(btn => {
-        btn.classList.remove('active');
-      });
+      [pencilBtn, eraserBtn, fillBtn, lineBtn, rectBtn, ellipseBtn, gradientBtn].forEach(btn => btn.classList.remove('active'));
       if (tool === 'pencil') pencilBtn.classList.add('active');
       else if (tool === 'eraser') eraserBtn.classList.add('active');
       else if (tool === 'fill') fillBtn.classList.add('active');
@@ -722,7 +532,6 @@
     const colorPicker = document.getElementById('colorPicker');
     colorPicker.value = "#000000";
 
-    // Update cursor based on selected tool
     function updateCursor() {
       if (currentTool === 'pencil') compositeCanvas.style.cursor = 'crosshair';
       else if (currentTool === 'eraser') compositeCanvas.style.cursor = 'cell';
@@ -732,9 +541,6 @@
       else compositeCanvas.style.cursor = 'default';
     }
 
-    /**********************
-     * Reference Image Upload
-     **********************/
     document.getElementById('referenceUpload').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -743,7 +549,7 @@
           referenceImage = new Image();
           referenceImage.onload = drawComposite;
           referenceImage.src = event.target.result;
-        }
+        };
         reader.readAsDataURL(file);
       }
     });
@@ -753,13 +559,6 @@
       drawComposite();
     });
 
-    /**********************
-     * Canvas Drawing Interaction (Mouse & Touch)
-     **********************/
-    let isDrawing = false;
-    let startX, startY;
-
-    // Mouse Events
     compositeCanvas.addEventListener('mousedown', (e) => {
       const pos = getCanvasCoordinates(e);
       startX = pos.x;
@@ -769,6 +568,8 @@
       if (currentTool === 'fill') {
         performFill(pos.x, pos.y);
         isDrawing = false;
+      } else if (currentTool === 'pencil' || currentTool === 'eraser') {
+        drawPixel(pos.x, pos.y);
       }
     });
     compositeCanvas.addEventListener('mousemove', (e) => {
@@ -791,38 +592,69 @@
       drawComposite();
     });
 
-    // Touch Events for Mobile & Tablet
-    compositeCanvas.addEventListener('touchstart', function(e) {
-      e.preventDefault(); // Prevent scrolling
-      const pos = getCanvasCoordinates(e);
-      startX = pos.x;
-      startY = pos.y;
-      isDrawing = true;
-      saveHistory();
-      if (currentTool === 'fill') {
-        performFill(pos.x, pos.y);
+    compositeCanvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const pos = getCanvasCoordinates(e);
+        startX = pos.x;
+        startY = pos.y;
+        isDrawing = true;
+        saveHistory();
+        if (currentTool === 'fill') {
+          performFill(pos.x, pos.y);
+          isDrawing = false;
+        } else if (currentTool === 'pencil' || currentTool === 'eraser') {
+          drawPixel(pos.x, pos.y);
+        }
+      } else if (e.touches.length === 2) {
         isDrawing = false;
+        isPanning = true;
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        lastDist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+        startX = (touch1.clientX + touch2.clientX) / 2;
+        startY = (touch1.clientY + touch2.clientY) / 2;
       }
     });
-    compositeCanvas.addEventListener('touchmove', function(e) {
+    compositeCanvas.addEventListener('touchmove', (e) => {
       e.preventDefault();
-      if (!isDrawing) return;
-      const pos = getCanvasCoordinates(e);
-      if (currentTool === 'pencil' || currentTool === 'eraser') {
-        drawPixel(pos.x, pos.y);
-      } else {
+      if (e.touches.length === 1 && isDrawing) {
+        const pos = getCanvasCoordinates(e);
+        if (currentTool === 'pencil' || currentTool === 'eraser') {
+          drawPixel(pos.x, pos.y);
+        } else {
+          drawComposite();
+          previewShape(startX, startY, pos.x, pos.y);
+        }
+      } else if (e.touches.length === 2 && isPanning) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const newDist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+        const zoomChange = newDist / lastDist;
+        zoomLevel *= zoomChange;
+        zoomLevel = Math.max(0.5, Math.min(zoomLevel, 5));
+        lastDist = newDist;
+
+        const newX = (touch1.clientX + touch2.clientX) / 2;
+        const newY = (touch1.clientY + touch2.clientY) / 2;
+        offsetX += newX - startX;
+        offsetY += newY - startY;
+        startX = newX;
+        startY = newY;
+
         drawComposite();
-        previewShape(startX, startY, pos.x, pos.y);
       }
     });
-    compositeCanvas.addEventListener('touchend', function(e) {
+    compositeCanvas.addEventListener('touchend', (e) => {
       e.preventDefault();
-      // Since touchend doesn't provide coordinates, we rely on the last touchmove position.
+      if (isDrawing && (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'gradient')) {
+        drawShape(startX, startY, startX, startY);
+      }
       isDrawing = false;
+      isPanning = false;
       drawComposite();
     });
 
-    // Get coordinates from mouse or touch events
     function getCanvasCoordinates(e) {
       let clientX, clientY;
       if (e.touches && e.touches.length > 0) {
@@ -833,30 +665,24 @@
         clientY = e.clientY;
       }
       const rect = compositeCanvas.getBoundingClientRect();
-      const x = Math.floor((clientX - rect.left) / zoom);
-      const y = Math.floor((clientY - rect.top) / zoom);
-      return { x, y };
+      const x = Math.floor((clientX - rect.left - offsetX) / (zoom * zoomLevel));
+      const y = Math.floor((clientY - rect.top - offsetY) / (zoom * zoomLevel));
+      return { x: Math.max(0, Math.min(x, gridWidth - 1)), y: Math.max(0, Math.min(y, gridHeight - 1)) };
     }
 
-    // Draw a pixel on the active layer
     function drawPixel(x, y) {
       const frame = project.frames[project.activeFrame];
       const layer = frame.layers[frame.activeLayer];
-      if (currentTool === 'pencil') {
-        layer.data[y][x] = colorPicker.value;
-        if (symmetryMode) {
-          layer.data[y][gridWidth - 1 - x] = colorPicker.value;
-        }
-      } else if (currentTool === 'eraser') {
-        layer.data[y][x] = null;
-        if (symmetryMode) {
-          layer.data[y][gridWidth - 1 - x] = null;
-        }
+      const color = currentTool === 'pencil' ? colorPicker.value : null;
+      layer.data[y][x] = color;
+      ctx.fillStyle = color || 'transparent';
+      ctx.fillRect(x * zoom * zoomLevel + offsetX, y * zoom * zoomLevel + offsetY, zoom * zoomLevel, zoom * zoomLevel);
+      if (symmetryMode) {
+        layer.data[y][gridWidth - 1 - x] = color;
+        ctx.fillRect((gridWidth - 1 - x) * zoom * zoomLevel + offsetX, y * zoom * zoomLevel + offsetY, zoom * zoomLevel, zoom * zoomLevel);
       }
-      drawComposite();
     }
 
-    // Flood fill implementation
     function performFill(x, y) {
       const frame = project.frames[project.activeFrame];
       const layer = frame.layers[frame.activeLayer];
@@ -877,7 +703,6 @@
       drawComposite();
     }
 
-    // Preview shape drawing (line, rect, ellipse)
     function previewShape(x0, y0, x1, y1) {
       ctx.save();
       ctx.globalAlpha = 0.5;
@@ -902,7 +727,6 @@
       ctx.restore();
     }
 
-    // Finalize shape drawing
     function drawShape(x0, y0, x1, y1) {
       const frame = project.frames[project.activeFrame];
       const layer = frame.layers[frame.activeLayer];
@@ -915,7 +739,6 @@
       }
     }
 
-    // Simple Bresenham line algorithm
     function drawLine(data, x0, y0, x1, y1, color) {
       let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
       let sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1;
@@ -931,7 +754,6 @@
       drawComposite();
     }
 
-    // Draw rectangle outline
     function drawRect(data, x0, y0, x1, y1, color) {
       let xMin = Math.min(x0, x1), xMax = Math.max(x0, x1);
       let yMin = Math.min(y0, y1), yMax = Math.max(y0, y1);
@@ -954,7 +776,6 @@
       drawComposite();
     }
 
-    // Draw ellipse (simplified)
     function drawEllipse(data, x0, y0, x1, y1, color) {
       let centerX = Math.floor((x0 + x1) / 2), centerY = Math.floor((y0 + y1) / 2);
       let rx = Math.floor(Math.abs(x1 - x0) / 2), ry = Math.floor(Math.abs(y1 - y0) / 2);
@@ -964,40 +785,87 @@
             let drawX = centerX + x;
             let drawY = centerY + y;
             data[drawY][drawX] = color;
-            if (symmetryMode) {
-              data[drawY][gridWidth - 1 - drawX] = color;
-            }
+            if (symmetryMode) data[drawY][gridWidth - 1 - drawX] = color;
           }
         }
       }
       drawComposite();
     }
 
-    /**********************
-     * Undo / Redo & History
-     **********************/
     function saveHistory() {
-      historyStack.push(JSON.stringify(project));
+      const currentState = JSON.stringify(project);
+      if (lastState) {
+        const diff = getDiff(lastState, currentState);
+        historyStack.push(diff);
+      } else {
+        historyStack.push(currentState);
+      }
       redoStack = [];
+      lastState = currentState;
     }
+
+    function getDiff(oldState, newState) {
+      const oldProject = JSON.parse(oldState);
+      const newProject = JSON.parse(newState);
+      const diff = { activeFrame: newProject.activeFrame, layers: [] };
+      const oldFrame = oldProject.frames[oldProject.activeFrame];
+      const newFrame = newProject.frames[newProject.activeFrame];
+      
+      newFrame.layers.forEach((newLayer, index) => {
+        const oldLayer = oldFrame.layers[index] || { data: createEmptyLayer() };
+        const layerDiff = { name: newLayer.name, visible: newLayer.visible, changes: [] };
+        for (let y = 0; y < gridHeight; y++) {
+          for (let x = 0; x < gridWidth; x++) {
+            if (newLayer.data[y][x] !== oldLayer.data[y][x]) {
+              layerDiff.changes.push({ x, y, color: newLayer.data[y][x] });
+            }
+          }
+        }
+        if (layerDiff.changes.length > 0) diff.layers.push(layerDiff);
+      });
+      return diff;
+    }
+
+    function applyDiff(state, diff) {
+      const projectCopy = JSON.parse(state);
+      const frame = projectCopy.frames[diff.activeFrame];
+      diff.layers.forEach(layerDiff => {
+        const layer = frame.layers.find(l => l.name === layerDiff.name);
+        if (layer) {
+          layer.visible = layerDiff.visible;
+          layerDiff.changes.forEach(change => {
+            layer.data[change.y][change.x] = change.color;
+          });
+        }
+      });
+      return projectCopy;
+    }
+
     function undo() {
       if (historyStack.length > 1) {
-        redoStack.push(historyStack.pop());
-        project = JSON.parse(historyStack[historyStack.length - 1]);
+        const currentState = historyStack.pop();
+        redoStack.push(currentState);
+        const previousDiff = historyStack[historyStack.length - 1];
+        project = applyDiff(lastState, previousDiff);
+        lastState = JSON.stringify(project);
         updateLayersUI();
         updateFramesUI();
         drawComposite();
       }
     }
+
     function redo() {
       if (redoStack.length) {
-        historyStack.push(redoStack.pop());
-        project = JSON.parse(historyStack[historyStack.length - 1]);
+        const nextState = redoStack.pop();
+        historyStack.push(nextState);
+        project = applyDiff(lastState, nextState);
+        lastState = JSON.stringify(project);
         updateLayersUI();
         updateFramesUI();
         drawComposite();
       }
     }
+
     document.getElementById('undoBtn').addEventListener('click', undo);
     document.getElementById('redoBtn').addEventListener('click', redo);
     document.getElementById('clearBtn').addEventListener('click', () => {
@@ -1007,15 +875,38 @@
       saveHistory();
     });
 
-    /**********************
-     * Export, Save & Load
-     **********************/
     document.getElementById('exportBtn').addEventListener('click', () => {
       const link = document.createElement('a');
       link.download = 'pixel-art.png';
       link.href = compositeCanvas.toDataURL();
       link.click();
     });
+
+    function exportLayers() {
+      const frame = project.frames[project.activeFrame];
+      frame.layers.forEach((layer, index) => {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = gridWidth * zoom;
+        tempCanvas.height = gridHeight * zoom;
+        const tempCtx = tempCanvas.getContext('2d');
+        for (let y = 0; y < gridHeight; y++) {
+          for (let x = 0; x < gridWidth; x++) {
+            const color = layer.data[y][x];
+            if (color) {
+              tempCtx.fillStyle = color;
+              tempCtx.fillRect(x * zoom, y * zoom, zoom, zoom);
+            }
+          }
+        }
+        const link = document.createElement('a');
+        link.download = `layer_${index + 1}_${layer.name}.png`;
+        link.href = tempCanvas.toDataURL('image/png');
+        link.click();
+      });
+      alert('Layers exported successfully!');
+    }
+    document.getElementById('exportLayersBtn').addEventListener('click', exportLayers);
+
     document.getElementById('saveProjectBtn').addEventListener('click', () => {
       localStorage.setItem('pixelArtProject', JSON.stringify(project));
       alert('Project saved! (Saved to your browser’s local storage)');
@@ -1027,15 +918,13 @@
         updateLayersUI();
         updateFramesUI();
         drawComposite();
+        lastState = JSON.stringify(project);
         alert('Project loaded!');
       } else {
         alert('No saved project found.');
       }
     });
 
-    /**********************
-     * Theme Toggle (Dark/Light Mode)
-     **********************/
     document.getElementById('themeToggleBtn').addEventListener('click', () => {
       if (theme === 'dark') {
         document.body.classList.add('light-theme');
@@ -1046,9 +935,6 @@
       }
     });
 
-    /**********************
-     * Keyboard Shortcuts
-     **********************/
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
       if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
@@ -1062,7 +948,6 @@
       if (e.key === 'y') { symmetryMode = !symmetryMode; symmetryBtn.classList.toggle('active', symmetryMode); }
     });
 
-    // Initialize the project after all functions and event listeners are defined
     initProject();
   </script>
 </body>
