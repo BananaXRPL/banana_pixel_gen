@@ -21,6 +21,7 @@
         a { color: #007acc; text-decoration: none; }
         a:hover { text-decoration: underline; }
 
+        /* Landing Page Styles */
         #landingPage {
             position: fixed;
             top: 0;
@@ -66,6 +67,7 @@
         .social-links-landing a:hover { text-decoration: underline; }
         .social-links-landing span { color: #FFEB3B; font-size: 1.2rem; }
 
+        /* Editor Container Styles */
         #editorContainer {
             display: none;
             height: 100vh;
@@ -167,6 +169,8 @@
             border-top: 1px solid #ccc;
             height: 40px;
         }
+
+        /* Button Styles */
         .toolbar-btn {
             padding: 8px;
             margin: 2px;
@@ -223,6 +227,8 @@
             gap: 8px;
             margin-bottom: 10px;
         }
+
+        /* Dropdown Styles */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -244,6 +250,8 @@
             background: #FBC02D;
             text-align: left;
         }
+
+        /* Control Groups */
         #bgControls, #boardSizeControls { 
             display: inline-flex; 
             align-items: center; 
@@ -252,6 +260,8 @@
         }
         #bgControls label, #boardSizeControls label { margin-right: 3px; font-size: 0.8rem; }
         #boardSizeControls input { width: 40px; font-size: 0.8rem; }
+
+        /* Layer and Frame Styles */
         .layer-item {
             background: #ccc;
             margin-bottom: 6px;
@@ -290,6 +300,8 @@
             font-size: 0.9rem;
         }
         .frame-item.active { border: 2px solid #F57F17; }
+
+        /* Canvas and Palette Styles */
         canvas {
             background: transparent;
             image-rendering: pixelated;
@@ -357,6 +369,8 @@
         #brushSizeControl { margin-top: 10px; display: flex; align-items: center; gap: 5px; }
         #brushSizeControl label { font-size: 0.9rem; }
         #hueSlider, #alphaSlider { width: 100%; }
+
+        /* Popup Styles */
         #watermarkPopup, #supportPopup {
             display: none;
             position: fixed;
@@ -381,6 +395,8 @@
             cursor: pointer;
         }
         #watermarkPopup button:hover, #supportPopup button:hover { background: #F9A825; }
+
+        /* Light Theme */
         body.light-theme { background: #222; color: #FFFDE7; }
         body.light-theme #editorContainer { background: #222; }
         body.light-theme #sidebar, body.light-theme #rightSidebar {
@@ -401,6 +417,8 @@
         body.light-theme .frame-item { background: #FFEB3B; }
         body.light-theme #watermarkPopup, body.light-theme #supportPopup { background: #FBC02D; color: #222; }
         body.light-theme .social-links, body.light-theme .social-links a, body.light-theme .social-links span { color: #FFFDE7; }
+
+        /* Reference Image Controls */
         .reference-controls {
             position: absolute;
             top: 15px;
@@ -409,6 +427,13 @@
             gap: 8px;
             z-index: 1000;
         }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            #headerTitle {
+                display: none; /* Hide header title on smaller screens */
+            }
+        }
         @media (min-width: 768px) {
             #landingPage h1 { font-size: 4.5rem; margin-top: -20px; }
             #landingPage .sponsor { margin-top: 60px; font-size: 1rem; }
@@ -416,6 +441,7 @@
     </style>
 </head>
 <body>
+    <!-- Landing Page -->
     <div id="landingPage">
         <h1 style="color:#FFEB3B;">$BANANA Business</h1>
         <h2 style="color: #fff;">8-Bit Pixel Generator</h2>
@@ -423,7 +449,7 @@
         <div class="sponsor">Sponsored by Uga Labz</div>
         <footer class="landing-footer">
             <div class="social-links-landing">
-                <a href="https://bit.ly/first-ledger" target="_blank" aria-label="First Ledger">First Ledger</a>
+                <a href="https://firstledger.net/token/rPopnAhPWZXiWApiPM5EHQ6ksLEhvGiLqP/42414E414E410000000000000000000000000000" target="_blank" aria-label="First Ledger">First Ledger</a>
                 <span>|</span>
                 <a href="https://x.com/bananaXRPL" target="_blank" aria-label="X">X</a>
                 <span>|</span>
@@ -432,7 +458,8 @@
         </footer>
     </div>
 
-    <div id="editorContainer" style="display: none;">
+    <!-- Editor Interface -->
+    <div id="editorContainer">
         <div id="container">
             <div id="sidebar">
                 <h3>Layers</h3>
@@ -496,6 +523,7 @@
                 <div class="tool-group">
                     <button id="pencilBtn" class="toolbar-btn-drawing active" title="Pencil (P)">✏️</button>
                     <button id="eraserBtn" class="toolbar-btn-drawing" title="Erase (E)">🧹</button>
+                    <button id="eyedropperBtn" class="toolbar-btn-drawing" title="Eyedropper (I)">👁️</button>
                     <button id="deleteBtn" class="toolbar-btn-drawing" title="Delete (D)">🗑️</button>
                     <button id="fillBtn" class="toolbar-btn-drawing" title="Fill (F)">🪣</button>
                 </div>
@@ -551,7 +579,7 @@
             </div>
             <div id="footer">
                 <div class="social-links">
-                    <a href="https://bit.ly/first-ledger" target="_blank" aria-label="First Ledger">First Ledger</a>
+                    <a href="https://firstledger.net/token/rPopnAhPWZXiWApiPM5EHQ6ksLEhvGiLqP/42414E414E410000000000000000000000000000" target="_blank" aria-label="First Ledger">First Ledger</a>
                     <span>|</span>
                     <a href="https://x.com/bananaXRPL" target="_blank" aria-label="X">X</a>
                     <span>|</span>
@@ -561,6 +589,7 @@
         </div>
     </div>
 
+    <!-- Popups -->
     <div id="watermarkPopup">
         <p>Include $BANANA Business watermark?</p>
         <button id="watermarkYes">Yes</button>
@@ -953,6 +982,7 @@
                 document.getElementById('playBtn').textContent = isPlaying ? 'Stop' : 'Play';
                 if (isPlaying) animateFrames();
             });
+
             document.getElementById('exportGifBtn').addEventListener('click', () => {
                 const watermarkPopup = document.getElementById('watermarkPopup');
                 const supportPopup = document.getElementById('supportPopup');
@@ -1022,6 +1052,7 @@
                     }
                 });
             });
+
             document.getElementById('gridToggleBtn').addEventListener('click', () => {
                 showGrid = !showGrid;
                 document.getElementById('gridToggleBtn').classList.toggle('active', showGrid);
@@ -1058,6 +1089,7 @@
 
             const pencilBtn = document.getElementById('pencilBtn');
             const eraserBtn = document.getElementById('eraserBtn');
+            const eyedropperBtn = document.getElementById('eyedropperBtn');
             const deleteBtn = document.getElementById('deleteBtn');
             const fillBtn = document.getElementById('fillBtn');
             const lineBtn = document.getElementById('lineBtn');
@@ -1068,9 +1100,10 @@
 
             function selectTool(tool) {
                 currentTool = tool;
-                [pencilBtn, eraserBtn, deleteBtn, fillBtn, lineBtn, rectBtn, ellipseBtn, gradientBtn].forEach(btn => btn.classList.remove('active'));
+                [pencilBtn, eraserBtn, eyedropperBtn, deleteBtn, fillBtn, lineBtn, rectBtn, ellipseBtn, gradientBtn].forEach(btn => btn.classList.remove('active'));
                 if (tool === 'pencil') pencilBtn.classList.add('active');
                 else if (tool === 'eraser') eraserBtn.classList.add('active');
+                else if (tool === 'eyedropper') eyedropperBtn.classList.add('active');
                 else if (tool === 'delete') deleteBtn.classList.add('active');
                 else if (tool === 'fill') fillBtn.classList.add('active');
                 else if (tool === 'line') lineBtn.classList.add('active');
@@ -1081,6 +1114,7 @@
             }
             pencilBtn.addEventListener('click', () => selectTool('pencil'));
             eraserBtn.addEventListener('click', () => selectTool('eraser'));
+            eyedropperBtn.addEventListener('click', () => selectTool('eyedropper'));
             deleteBtn.addEventListener('click', () => selectTool('delete'));
             fillBtn.addEventListener('click', () => selectTool('fill'));
             lineBtn.addEventListener('click', () => selectTool('line'));
@@ -1128,6 +1162,7 @@
             function updateCursor() {
                 if (currentTool === 'pencil') compositeCanvas.style.cursor = 'crosshair';
                 else if (currentTool === 'eraser') compositeCanvas.style.cursor = 'cell';
+                else if (currentTool === 'eyedropper') compositeCanvas.style.cursor = 'copy';
                 else if (currentTool === 'delete') compositeCanvas.style.cursor = 'not-allowed';
                 else if (currentTool === 'fill') compositeCanvas.style.cursor = 'alias';
                 else if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'gradient')
@@ -1238,6 +1273,15 @@
                 startY = pos.y;
                 isDrawing = true;
                 saveHistory();
+                if (currentTool === 'eyedropper') {
+                    const color = getPixelColor(pos.x, pos.y);
+                    if (color) {
+                        currentColor = color;
+                        updateIndicator(colorCanvas.width / 2, colorCanvas.height / 2, color);
+                    }
+                    isDrawing = false;
+                    return;
+                }
                 if (currentTool === 'fill') {
                     performFill(pos.x, pos.y);
                     isDrawing = false;
@@ -1251,7 +1295,7 @@
                 const pos = getCanvasCoordinates(e);
                 if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
                     drawPixel(pos.x, pos.y);
-                } else {
+                } else if (currentTool !== 'eyedropper') {
                     drawComposite();
                     previewShape(startX, startY, pos.x, pos.y);
                 }
@@ -1275,6 +1319,15 @@
                     startY = pos.y;
                     isDrawing = true;
                     saveHistory();
+                    if (currentTool === 'eyedropper') {
+                        const color = getPixelColor(pos.x, pos.y);
+                        if (color) {
+                            currentColor = color;
+                            updateIndicator(colorCanvas.width / 2, colorCanvas.height / 2, color);
+                        }
+                        isDrawing = false;
+                        return;
+                    }
                     if (currentTool === 'fill') {
                         performFill(pos.x, pos.y);
                         isDrawing = false;
@@ -1298,7 +1351,7 @@
                     const pos = getCanvasCoordinates(e);
                     if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
                         drawPixel(pos.x, pos.y);
-                    } else {
+                    } else if (currentTool !== 'eyedropper') {
                         drawComposite();
                         previewShape(startX, startY, pos.x, pos.y);
                     }
@@ -1347,6 +1400,17 @@
                 const x = Math.floor(((clientX - rect.left) * scaleX - offsetX) / (zoom * zoomLevel));
                 const y = Math.floor(((clientY - rect.top) * scaleY - offsetY) / (zoom * zoomLevel));
                 return { x: Math.max(0, Math.min(x, gridWidth - 1)), y: Math.max(0, Math.min(y, gridHeight - 1)) };
+            }
+
+            function getPixelColor(x, y) {
+                const frame = project.frames[project.activeFrame];
+                for (let i = frame.layers.length - 1; i >= 0; i--) {
+                    const layer = frame.layers[i];
+                    if (layer.visible && layer.data[y][x]) {
+                        return layer.data[y][x];
+                    }
+                }
+                return null;
             }
 
             function drawPixel(x, y) {
@@ -1636,10 +1700,12 @@
             document.getElementById('saveProjectBtn').addEventListener('click', () => {
                 const projectData = JSON.stringify(project);
                 const blob = new Blob([projectData], { type: 'application/json' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'banana_project.json';
-                link.click();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'banana_project.json';
+                a.click();
+                URL.revokeObjectURL(url);
             });
 
             document.getElementById('loadProjectFile').addEventListener('change', (e) => {
@@ -1683,6 +1749,7 @@
                 if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
                 if (e.key === 'p') selectTool('pencil');
                 if (e.key === 'e') selectTool('eraser');
+                if (e.key === 'i') selectTool('eyedropper');
                 if (e.key === 'd') selectTool('delete');
                 if (e.key === 'f') selectTool('fill');
                 if (e.key === 'l') selectTool('line');
