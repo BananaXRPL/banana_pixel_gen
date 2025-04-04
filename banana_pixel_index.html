@@ -21,7 +21,6 @@
         a { color: #007acc; text-decoration: none; }
         a:hover { text-decoration: underline; }
 
-        /* Landing Page Styles */
         #landingPage {
             position: fixed;
             top: 0;
@@ -67,7 +66,6 @@
         .social-links-landing a:hover { text-decoration: underline; }
         .social-links-landing span { color: #FFEB3B; font-size: 1.2rem; }
 
-        /* Editor Container Styles */
         #editorContainer {
             display: none;
             height: 100vh;
@@ -170,7 +168,6 @@
             height: 40px;
         }
 
-        /* Button Styles */
         .toolbar-btn {
             padding: 8px;
             margin: 2px;
@@ -228,7 +225,6 @@
             margin-bottom: 10px;
         }
 
-        /* Dropdown Styles */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -251,7 +247,6 @@
             text-align: left;
         }
 
-        /* Control Groups */
         #bgControls, #boardSizeControls { 
             display: inline-flex; 
             align-items: center; 
@@ -261,7 +256,6 @@
         #bgControls label, #boardSizeControls label { margin-right: 3px; font-size: 0.8rem; }
         #boardSizeControls input { width: 40px; font-size: 0.8rem; }
 
-        /* Layer and Frame Styles */
         .layer-item {
             background: #ccc;
             margin-bottom: 6px;
@@ -301,7 +295,6 @@
         }
         .frame-item.active { border: 2px solid #F57F17; }
 
-        /* Canvas and Palette Styles */
         canvas {
             background: transparent;
             image-rendering: pixelated;
@@ -367,7 +360,6 @@
         }
         .color-swatch:hover button { display: block; }
 
-        /* Reference and Zoom Controls */
         .reference-controls {
             position: absolute;
             top: 15px;
@@ -385,7 +377,6 @@
             z-index: 1000;
         }
 
-        /* Popup Styles */
         #watermarkPopup, #supportPopup {
             display: none;
             position: fixed;
@@ -411,7 +402,6 @@
         }
         #watermarkPopup button:hover, #supportPopup button:hover { background: #F9A825; }
 
-        /* Light Theme */
         body.light-theme { background: #222; color: #FFFDE7; }
         body.light-theme #editorContainer { background: #222; }
         body.light-theme #sidebar, body.light-theme #rightSidebar {
@@ -433,7 +423,6 @@
         body.light-theme #watermarkPopup, body.light-theme #supportPopup { background: #FBC02D; color: #222; }
         body.light-theme .social-links, body.light-theme .social-links a, body.light-theme .social-links span { color: #FFFDE7; }
 
-        /* Media Queries for Mobile & Tablet */
         @media (max-width: 1024px) {
             #container {
                 grid-template-columns: 1fr;
@@ -446,12 +435,15 @@
                     "animation"
                     "footer";
             }
-            #sidebar, #rightSidebar {
-                max-height: 30vh;
+            #sidebar, #rightSidebar, #animation {
+                position: sticky;
+                top: 0;
+                max-height: 25vh;
                 overflow-y: auto;
             }
             #main {
-                min-height: 50vh;
+                overflow: auto;
+                height: 50vh;
             }
             canvas {
                 width: 100%;
@@ -482,7 +474,24 @@
             }
         }
 
-        /* Additional adjustments for very small mobile screens */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            #headerTitle {
+                font-size: 1rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+            }
+            #headerTools .toolbar-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            #sidebar, #rightSidebar {
+                max-height: 40vh;
+            }
+        }
+
         @media (max-width: 480px) {
             #landingPage h1 { font-size: 2.5rem; }
             #landingPage h2 { font-size: 1.2rem; }
@@ -508,7 +517,6 @@
     </style>
 </head>
 <body>
-    <!-- Landing Page -->
     <div id="landingPage">
         <h1 style="color:#FFEB3B;">$BANANA Business</h1>
         <h2 style="color: #fff;">8-Bit Pixel Generator</h2>
@@ -525,13 +533,14 @@
         </footer>
     </div>
 
-    <!-- Editor Interface -->
     <div id="editorContainer">
         <div id="container">
             <div id="sidebar">
                 <h3>Layers</h3>
                 <div id="layersList"></div>
                 <button id="addLayerBtn" class="toolbar-btn-small">Add Layer</button>
+                <button id="duplicateLayerBtn" class="toolbar-btn-small">Duplicate</button>
+                <button id="mergeLayerBtn" class="toolbar-btn-small">Merge</button>
             </div>
             <div id="header">
                 <div id="headerTitle">$BANANA Business 8-Bit Pixel Generator</div>
@@ -575,6 +584,7 @@
             </div>
             <div id="main">
                 <canvas id="compositeCanvas"></canvas>
+                <canvas id="previewCanvas" width="100" height="100" style="position: absolute; bottom: 15px; left: 15px; border: 1px solid #666;"></canvas>
                 <div class="reference-controls">
                     <div class="dropdown">
                         <button class="toolbar-btn-drawing" title="Upload Reference">⬆️</button>
@@ -634,8 +644,8 @@
                 </div>
             </div>
             <div id="animation">
-                <h3 style="margin-right: 10px;">Animation Frames:</h3>
-                <div id="framesList" style="display: flex; flex-grow: 1;"></div>
+                <h3 style="margin-right: 10px;">Animation Timeline:</h3>
+                <div id="timeline" style="display: flex; flex-grow: 1; overflow-x: auto;"></div>
                 <div class="tool-group">
                     <button id="addFrameBtn" class="toolbar-btn-small">Add Frame</button>
                     <button id="removeFrameBtn" class="toolbar-btn-small">Remove Frame</button>
@@ -655,7 +665,6 @@
         </div>
     </div>
 
-    <!-- Popups -->
     <div id="watermarkPopup">
         <p>Include $BANANA Business watermark?</p>
         <button id="watermarkYes">Yes</button>
@@ -676,14 +685,14 @@
                     console.log('Launch App clicked!');
                     document.getElementById('landingPage').style.display = 'none';
                     document.getElementById('editorContainer').style.display = 'block';
-                    resizeCanvas(); // Ensure canvas is sized on launch
+                    resizeCanvas();
                 });
             } else {
                 console.error('Launch button not found!');
             }
 
             let gridWidth = 32, gridHeight = 32;
-            let defaultZoom = window.innerWidth < 480 ? 15 : 25; // Smaller default zoom for mobile
+            let defaultZoom = window.innerWidth < 480 ? 15 : 25;
             let zoom = defaultZoom;
             let zoomLevel = 1;
             let offsetX = 0, offsetY = 0;
@@ -702,7 +711,7 @@
             let historyStack = [];
             let redoStack = [];
             let customColors = [];
-            let currentColor = "#000000";
+            let currentColor = "rgba(0, 0, 0, 1)"; // Use RGBA for consistency
 
             const compositeCanvas = document.getElementById('compositeCanvas');
             const ctx = compositeCanvas.getContext('2d');
@@ -715,12 +724,15 @@
             const alphaSlider = document.getElementById("alphaSlider");
             const saveColorBtn = document.getElementById("saveColorBtn");
             const toggleGridBtn = document.getElementById("toggleGridBtn");
+            const previewCanvas = document.getElementById('previewCanvas');
+            const previewCtx = previewCanvas.getContext('2d');
             let gridEnabled = false;
+            let offscreenCanvas = document.createElement('canvas');
+            let offscreenCtx = offscreenCanvas.getContext('2d');
 
-            // Dynamic canvas sizing function
             function resizeCanvas() {
                 const main = document.getElementById('main');
-                compositeCanvas.width = main.clientWidth - 30; // Adjust for padding
+                compositeCanvas.width = main.clientWidth - 30;
                 compositeCanvas.height = main.clientHeight - 30;
                 const maxGridWidth = gridWidth * zoom;
                 const maxGridHeight = gridHeight * zoom;
@@ -738,10 +750,23 @@
             }
 
             function setBoardSize(newWidth, newHeight) {
+                const oldWidth = gridWidth;
+                const oldHeight = gridHeight;
                 gridWidth = newWidth;
                 gridHeight = newHeight;
+                project.frames.forEach(frame => {
+                    frame.layers.forEach(layer => {
+                        const newData = createEmptyLayer();
+                        for (let y = 0; y < Math.min(oldHeight, newHeight); y++) {
+                            for (let x = 0; x < Math.min(oldWidth, newWidth); x++) {
+                                newData[y][x] = layer.data[y][x];
+                            }
+                        }
+                        layer.data = newData;
+                    });
+                });
                 resizeCanvas();
-                initProject();
+                drawComposite();
             }
 
             document.getElementById('setBoardSizeBtn').addEventListener('click', () => {
@@ -756,7 +781,7 @@
 
             function initProject() {
                 project.frames = [];
-                let frame = { layers: [], activeLayer: 0 };
+                let frame = { layers: [], activeLayer: 0, duration: 100 };
                 frame.layers.push({ name: 'Layer 1', visible: true, group: '', locked: false, data: createEmptyLayer() });
                 project.frames.push(frame);
                 project.activeFrame = 0;
@@ -766,7 +791,7 @@
                 drawComposite();
             }
 
-            function drawBackground() {
+            function drawBackground(ctxToUse) {
                 const checkerboard = document.getElementById('checkerboardToggle').checked;
                 const bgColor = document.getElementById('bgColorPicker').value;
                 if (checkerboard) {
@@ -780,12 +805,12 @@
                     offCtx.fillStyle = shadeColor(bgColor, -20);
                     offCtx.fillRect(0, 0, patternSize, patternSize);
                     offCtx.fillRect(patternSize, patternSize, patternSize, patternSize);
-                    let pattern = ctx.createPattern(offCanvas, 'repeat');
-                    ctx.fillStyle = pattern;
-                    ctx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+                    let pattern = ctxToUse.createPattern(offCanvas, 'repeat');
+                    ctxToUse.fillStyle = pattern;
+                    ctxToUse.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
                 } else {
-                    ctx.fillStyle = bgColor;
-                    ctx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+                    ctxToUse.fillStyle = bgColor;
+                    ctxToUse.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
                 }
             }
 
@@ -799,42 +824,47 @@
             }
 
             function drawComposite() {
-                ctx.save();
-                ctx.clearRect(0, 0, compositeCanvas.width, compositeCanvas.height);
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(zoomLevel, zoomLevel);
-                drawBackground();
-                ctx.imageSmoothingEnabled = false;
+                offscreenCanvas.width = gridWidth * zoom;
+                offscreenCanvas.height = gridHeight * zoom;
+                offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+                drawBackground(offscreenCtx);
+                offscreenCtx.imageSmoothingEnabled = false;
                 if (referenceImage && referenceImage.complete) {
-                    ctx.globalAlpha = 0.5;
-                    ctx.drawImage(referenceImage, 0, 0, gridWidth * zoom, gridHeight * zoom);
-                    ctx.globalAlpha = 1;
+                    offscreenCtx.globalAlpha = 0.5;
+                    offscreenCtx.drawImage(referenceImage, 0, 0, gridWidth * zoom, gridHeight * zoom);
+                    offscreenCtx.globalAlpha = 1;
                 }
                 const frame = project.frames[project.activeFrame];
                 if (onionSkin && project.activeFrame > 0 && !isPlaying) {
-                    drawFrame(project.frames[project.activeFrame - 1], 0.3);
+                    drawFrame(project.frames[project.activeFrame - 1], 0.3, offscreenCtx);
                 }
-                drawFrame(frame, 1);
+                drawFrame(frame, 1, offscreenCtx);
+                ctx.clearRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+                ctx.save();
+                ctx.translate(offsetX, offsetY);
+                ctx.scale(zoomLevel, zoomLevel);
+                ctx.drawImage(offscreenCanvas, 0, 0);
                 if (showGrid) drawGrid();
                 ctx.restore();
+                updatePreview();
             }
 
-            function drawFrame(frame, opacity) {
+            function drawFrame(frame, opacity, ctxToUse) {
                 frame.layers.forEach(layer => {
                     if (layer.visible) {
-                        ctx.globalAlpha = opacity;
+                        ctxToUse.globalAlpha = opacity;
                         for (let y = 0; y < gridHeight; y++) {
                             for (let x = 0; x < gridWidth; x++) {
                                 let color = layer.data[y][x];
                                 if (color) {
-                                    ctx.fillStyle = color;
-                                    ctx.fillRect(x * zoom, y * zoom, zoom, zoom);
+                                    ctxToUse.fillStyle = color;
+                                    ctxToUse.fillRect(x * zoom, y * zoom, zoom, zoom);
                                 }
                             }
                         }
                     }
                 });
-                ctx.globalAlpha = 1;
+                ctxToUse.globalAlpha = 1;
             }
 
             function drawGrid() {
@@ -852,6 +882,25 @@
                     ctx.lineTo(gridWidth * zoom, y * zoom);
                     ctx.stroke();
                 }
+            }
+
+            function updatePreview() {
+                previewCanvas.width = gridWidth;
+                previewCanvas.height = gridHeight;
+                previewCtx.imageSmoothingEnabled = false;
+                const frame = project.frames[project.activeFrame];
+                frame.layers.forEach(layer => {
+                    if (layer.visible) {
+                        for (let y = 0; y < gridHeight; y++) {
+                            for (let x = 0; x < gridWidth; x++) {
+                                if (layer.data[y][x]) {
+                                    previewCtx.fillStyle = layer.data[y][x];
+                                    previewCtx.fillRect(x, y, 1, 1);
+                                }
+                            }
+                        }
+                    }
+                });
             }
 
             function addWatermark(ctx, width, height) {
@@ -904,12 +953,7 @@
                 indicator.style.left = `${x - 7}px`;
                 indicator.style.top = `${y - 7}px`;
                 indicator.style.background = color;
-                currentColor = rgbToHex(color);
-            }
-
-            function rgbToHex(rgb) {
-                const [r, g, b] = rgb.match(/\d+/g).map(Number);
-                return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).padStart(6, '0')}`;
+                currentColor = color; // Store full RGBA
             }
 
             const layersList = document.getElementById('layersList');
@@ -999,21 +1043,52 @@
                 updateLayersUI();
                 saveHistory();
             });
+            document.getElementById('duplicateLayerBtn').addEventListener('click', () => {
+                const frame = project.frames[project.activeFrame];
+                const layer = frame.layers[frame.activeLayer];
+                const newLayer = { ...layer, name: `${layer.name} Copy`, data: JSON.parse(JSON.stringify(layer.data)) };
+                frame.layers.push(newLayer);
+                updateLayersUI();
+                saveHistory();
+                drawComposite();
+            });
+            document.getElementById('mergeLayerBtn').addEventListener('click', () => {
+                const frame = project.frames[project.activeFrame];
+                if (frame.layers.length > 1) {
+                    const topLayer = frame.layers[frame.activeLayer];
+                    const bottomLayer = frame.layers[frame.activeLayer - 1] || frame.layers[frame.activeLayer + 1];
+                    for (let y = 0; y < gridHeight; y++) {
+                        for (let x = 0; x < gridWidth; x++) {
+                            if (topLayer.data[y][x]) bottomLayer.data[y][x] = topLayer.data[y][x];
+                        }
+                    }
+                    frame.layers.splice(frame.activeLayer, 1);
+                    frame.activeLayer = Math.min(frame.activeLayer, frame.layers.length - 1);
+                    updateLayersUI();
+                    saveHistory();
+                    drawComposite();
+                }
+            });
 
-            const framesList = document.getElementById('framesList');
+            const timeline = document.getElementById('timeline');
             function updateFramesUI() {
-                framesList.innerHTML = '';
+                timeline.innerHTML = '';
                 project.frames.forEach((frame, index) => {
                     const div = document.createElement('div');
                     div.className = 'frame-item' + (index === project.activeFrame ? ' active' : '');
-                    div.textContent = index + 1;
+                    div.textContent = `${index + 1} (${frame.duration || 100}ms)`;
                     div.addEventListener('click', () => {
                         project.activeFrame = index;
                         updateFramesUI();
                         updateLayersUI();
                         drawComposite();
                     });
-                    framesList.appendChild(div);
+                    div.addEventListener('dblclick', () => {
+                        const duration = prompt('Frame duration (ms):', frame.duration || 100);
+                        if (duration) frame.duration = parseInt(duration);
+                        updateFramesUI();
+                    });
+                    timeline.appendChild(div);
                 });
             }
             document.getElementById('addFrameBtn').addEventListener('click', () => {
@@ -1026,7 +1101,8 @@
                         locked: layer.locked,
                         data: JSON.parse(JSON.stringify(layer.data))
                     })),
-                    activeLayer: currentFrame.activeLayer
+                    activeLayer: currentFrame.activeLayer,
+                    duration: currentFrame.duration || 100
                 };
                 project.frames.push(newFrame);
                 project.activeFrame = project.frames.length - 1;
@@ -1103,7 +1179,7 @@
                                 }
                             });
                             if (useWatermark) addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
-                            gif.addFrame(tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height), { delay: 100, copy: true });
+                            gif.addFrame(tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height), { delay: frame.duration || 100, copy: true });
                             console.log(`Frame ${index + 1} added to GIF`);
                         });
                         gif.on('finished', blob => {
@@ -1145,11 +1221,14 @@
 
             function animateFrames() {
                 if (!isPlaying) return;
-                project.activeFrame = (project.activeFrame + 1) % project.frames.length;
-                updateFramesUI();
-                updateLayersUI();
-                drawComposite();
-                setTimeout(animateFrames, 100);
+                const frame = project.frames[project.activeFrame];
+                setTimeout(() => {
+                    project.activeFrame = (project.activeFrame + 1) % project.frames.length;
+                    updateFramesUI();
+                    updateLayersUI();
+                    drawComposite();
+                    animateFrames();
+                }, frame.duration || 100);
             }
 
             function centerGrid() {
@@ -1199,6 +1278,8 @@
             });
 
             colorCanvas.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const rect = colorCanvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -1206,10 +1287,27 @@
                 updateIndicator(x, y, color);
             });
 
-            hueSlider.addEventListener("input", () => drawColorPicker(hueSlider.value));
+            colorCanvas.addEventListener("touchstart", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const rect = colorCanvas.getBoundingClientRect();
+                const x = e.touches[0].clientX - rect.left;
+                const y = e.touches[0].clientY - rect.top;
+                const color = getColorAtPosition(x, y);
+                updateIndicator(x, y, color);
+            }, { passive: false });
+
+            hueSlider.addEventListener("input", () => {
+                drawColorPicker(hueSlider.value);
+                const x = parseInt(indicator.style.left) + 7 || colorCanvas.width / 2;
+                const y = parseInt(indicator.style.top) + 7 || colorCanvas.height / 2;
+                const color = getColorAtPosition(x, y);
+                updateIndicator(x, y, color);
+            });
+
             alphaSlider.addEventListener("input", () => {
-                const x = parseInt(indicator.style.left) + 7;
-                const y = parseInt(indicator.style.top) + 7;
+                const x = parseInt(indicator.style.left) + 7 || colorCanvas.width / 2;
+                const y = parseInt(indicator.style.top) + 7 || colorCanvas.height / 2;
                 const color = getColorAtPosition(x, y);
                 updateIndicator(x, y, color);
             });
@@ -1278,7 +1376,7 @@
                     .slice(0, 8)
                     .map(([rgb]) => {
                         const [r, g, b] = rgb.split(',').map(Number);
-                        return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).padStart(6, '0')}`;
+                        return `rgba(${r}, ${g}, ${b}, 1)`;
                     });
 
                 displayCustomPalette(sortedColors);
@@ -1301,9 +1399,7 @@
                     swatch.appendChild(removeBtn);
                     swatch.addEventListener('click', () => {
                         currentColor = color;
-                        const x = colorCanvas.width / 2;
-                        const y = colorCanvas.height / 2;
-                        updateIndicator(x, y, color);
+                        updateIndicatorFromColor(color);
                     });
                     paletteDiv.appendChild(swatch);
                 });
@@ -1311,7 +1407,7 @@
             }
 
             function displayPresetPalette() {
-                const presetColors = ['#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+                const presetColors = ['rgba(0,0,0,1)', 'rgba(255,255,255,1)', 'rgba(255,0,0,1)', 'rgba(0,255,0,1)', 'rgba(0,0,255,1)', 'rgba(255,255,0,1)', 'rgba(255,0,255,1)', 'rgba(0,255,255,1)'];
                 const paletteDiv = document.getElementById('presetPalette');
                 paletteDiv.innerHTML = '';
                 presetColors.forEach(color => {
@@ -1320,12 +1416,19 @@
                     swatch.style.backgroundColor = color;
                     swatch.addEventListener('click', () => {
                         currentColor = color;
-                        const x = colorCanvas.width / 2;
-                        const y = colorCanvas.height / 2;
-                        updateIndicator(x, y, color);
+                        updateIndicatorFromColor(color);
                     });
                     paletteDiv.appendChild(swatch);
                 });
+            }
+
+            function updateIndicatorFromColor(color) {
+                // Update indicator position to center if not set
+                const x = parseInt(indicator.style.left) + 7 || colorCanvas.width / 2;
+                const y = parseInt(indicator.style.top) + 7 || colorCanvas.height / 2;
+                indicator.style.left = `${x - 7}px`;
+                indicator.style.top = `${y - 7}px`;
+                indicator.style.background = color;
             }
 
             compositeCanvas.addEventListener('mousedown', (e) => {
@@ -1343,7 +1446,7 @@
                     const color = getPixelColor(pos.x, pos.y);
                     if (color) {
                         currentColor = color;
-                        updateIndicator(colorCanvas.width / 2, colorCanvas.height / 2, color);
+                        updateIndicatorFromColor(color);
                     }
                     isDrawing = false;
                 }
@@ -1354,7 +1457,7 @@
                 const pos = getCanvasCoordinates(e);
                 if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
                     drawPixel(pos.x, pos.y);
-                } else {
+                } else if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'gradient') {
                     drawComposite();
                     previewShape(startX, startY, pos.x, pos.y);
                 }
@@ -1363,7 +1466,7 @@
             window.addEventListener('mouseup', (e) => {
                 if (!isDrawing) return;
                 const pos = getCanvasCoordinates(e);
-                if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse') {
+                if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'gradient') {
                     drawShape(startX, startY, pos.x, pos.y);
                 }
                 isDrawing = false;
@@ -1387,7 +1490,7 @@
                         const color = getPixelColor(pos.x, pos.y);
                         if (color) {
                             currentColor = color;
-                            updateIndicator(colorCanvas.width / 2, colorCanvas.height / 2, color);
+                            updateIndicatorFromColor(color);
                         }
                         isDrawing = false;
                     }
@@ -1408,7 +1511,7 @@
                     const pos = getCanvasCoordinates(e);
                     if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
                         drawPixel(pos.x, pos.y);
-                    } else {
+                    } else if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'gradient') {
                         drawComposite();
                         previewShape(startX, startY, pos.x, pos.y);
                     }
@@ -1435,7 +1538,8 @@
             compositeCanvas.addEventListener('touchend', (e) => {
                 e.preventDefault();
                 if (isDrawing && (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'gradient')) {
-                    drawShape(startX, startY, startX, startY);
+                    const pos = getCanvasCoordinates({ clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY });
+                    drawShape(startX, startY, pos.x, pos.y);
                 }
                 isDrawing = false;
                 isPanning = false;
@@ -1463,11 +1567,11 @@
                 const frame = project.frames[project.activeFrame];
                 for (let i = frame.layers.length - 1; i >= 0; i--) {
                     const layer = frame.layers[i];
-                    if (layer.visible && layer.data[y][x]) {
+                    if (layer.visible && layer.data[y] && layer.data[y][x]) {
                         return layer.data[y][x];
                     }
                 }
-                return null;
+                return document.getElementById('bgColorPicker').value + 'ff'; // Append full opacity
             }
 
             function drawPixel(x, y) {
@@ -1481,11 +1585,11 @@
                             const drawY = y + dy;
                             if (drawX >= 0 && drawX < gridWidth && drawY >= 0 && drawY < gridHeight) {
                                 layer.data[drawY][drawX] = currentColor;
-                                ctx.fillStyle = currentColor;
-                                ctx.fillRect(drawX * zoom, drawY * zoom, zoom, zoom);
+                                offscreenCtx.fillStyle = currentColor;
+                                offscreenCtx.fillRect(drawX * zoom, drawY * zoom, zoom, zoom);
                                 if (symmetryMode) {
                                     layer.data[drawY][gridWidth - 1 - drawX] = currentColor;
-                                    ctx.fillRect((gridWidth - 1 - drawX) * zoom, drawY * zoom, zoom, zoom);
+                                    offscreenCtx.fillRect((gridWidth - 1 - drawX) * zoom, drawY * zoom, zoom, zoom);
                                 }
                             }
                         }
@@ -1497,10 +1601,10 @@
                             const drawY = y + dy;
                             if (drawX >= 0 && drawX < gridWidth && drawY >= 0 && drawY < gridHeight) {
                                 layer.data[drawY][drawX] = null;
-                                ctx.clearRect(drawX * zoom, drawY * zoom, zoom, zoom);
+                                offscreenCtx.clearRect(drawX * zoom, drawY * zoom, zoom, zoom);
                                 if (symmetryMode) {
                                     layer.data[drawY][gridWidth - 1 - drawX] = null;
-                                    ctx.clearRect((gridWidth - 1 - drawX) * zoom, drawY * zoom, zoom, zoom);
+                                    offscreenCtx.clearRect((gridWidth - 1 - drawX) * zoom, drawY * zoom, zoom, zoom);
                                 }
                             }
                         }
@@ -1509,359 +1613,400 @@
                 drawComposite();
             }
 
-            function performFill(x, y) {
-                const frame = project.frames[project.activeFrame];
-                const layer = frame.layers[frame.activeLayer];
-                if (layer.locked) return;
-                const targetColor = layer.data[y][x];
-                if (targetColor === currentColor) return;
-                const stack = [{ x, y }];
-                while (stack.length) {
-                    const { x: cx, y: cy } = stack.pop();
-                    if (cx < 0 || cx >= gridWidth || cy < 0 || cy >= gridHeight) continue;
-                    if (layer.data[cy][cx] !== targetColor) continue;
-                    layer.data[cy][cx] = currentColor;
-                    stack.push({ x: cx + 1, y: cy });
-                    stack.push({ x: cx - 1, y: cy });
-                    stack.push({ x: cx, y: cy + 1 });
-                    stack.push({ x: cx, y: cy - 1 });
-                }
-                drawComposite();
-            }
+function performFill(x, y) {
+        const frame = project.frames[project.activeFrame];
+        const layer = frame.layers[frame.activeLayer];
+        if (layer.locked) return;
+        const targetColor = layer.data[y][x];
+        if (targetColor === currentColor) return;
+        const stack = [{ x, y }];
+        while (stack.length) {
+            const { x: cx, y: cy } = stack.pop();
+            if (cx < 0 || cx >= gridWidth || cy < 0 || cy >= gridHeight) continue;
+            if (layer.data[cy][cx] !== targetColor) continue;
+            layer.data[cy][cx] = currentColor;
+            stack.push({ x: cx + 1, y: cy });
+            stack.push({ x: cx - 1, y: cy });
+            stack.push({ x: cx, y: cy + 1 });
+            stack.push({ x: cx, y: cy - 1 });
+        }
+        drawComposite();
+    }
 
-            function previewShape(x0, y0, x1, y1) {
-                ctx.save();
-                ctx.globalAlpha = 0.5;
-                ctx.strokeStyle = currentColor;
-                ctx.lineWidth = zoom / 2;
-                if (currentTool === 'line') {
-                    ctx.beginPath();
-                    ctx.moveTo(x0 * zoom + zoom/2, y0 * zoom + zoom/2);
-                    ctx.lineTo(x1 * zoom + zoom/2, y1 * zoom + zoom/2);
-                    ctx.stroke();
-                } else if (currentTool === 'rect') {
-                    const rectX = Math.min(x0, x1), rectY = Math.min(y0, y1);
-                    const rectW = Math.abs(x1 - x0) + 1, rectH = Math.abs(y1 - y0) + 1;
-                    ctx.strokeRect(rectX * zoom, rectY * zoom, rectW * zoom, rectH * zoom);
-                } else if (currentTool === 'ellipse') {
-                    const centerX = (x0 + x1) / 2, centerY = (y0 + y1) / 2;
-                    const radiusX = Math.abs(x1 - x0) / 2, radiusY = Math.abs(y1 - y0) / 2;
-                    ctx.beginPath();
-                    ctx.ellipse(centerX * zoom + zoom/2, centerY * zoom + zoom/2, radiusX * zoom, radiusY * zoom, 0, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-                ctx.restore();
-            }
+    function previewShape(x0, y0, x1, y1) {
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = zoom / 2;
+        if (currentTool === 'line') {
+            ctx.beginPath();
+            ctx.moveTo(x0 * zoom + zoom/2, y0 * zoom + zoom/2);
+            ctx.lineTo(x1 * zoom + zoom/2, y1 * zoom + zoom/2);
+            ctx.stroke();
+        } else if (currentTool === 'rect') {
+            const rectX = Math.min(x0, x1), rectY = Math.min(y0, y1);
+            const rectW = Math.abs(x1 - x0) + 1, rectH = Math.abs(y1 - y0) + 1;
+            ctx.strokeRect(rectX * zoom, rectY * zoom, rectW * zoom, rectH * zoom);
+        } else if (currentTool === 'ellipse') {
+            const centerX = (x0 + x1) / 2, centerY = (y0 + y1) / 2;
+            const radiusX = Math.abs(x1 - x0) / 2, radiusY = Math.abs(y1 - y0) / 2;
+            ctx.beginPath();
+            ctx.ellipse(centerX * zoom + zoom/2, centerY * zoom + zoom/2, radiusX * zoom, radiusY * zoom, 0, 0, Math.PI * 2);
+            ctx.stroke();
+        } else if (currentTool === 'gradient') {
+            const gradient = ctx.createLinearGradient(x0 * zoom, y0 * zoom, x1 * zoom, y1 * zoom);
+            gradient.addColorStop(0, currentColor);
+            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.strokeStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(x0 * zoom + zoom/2, y0 * zoom + zoom/2);
+            ctx.lineTo(x1 * zoom + zoom/2, y1 * zoom + zoom/2);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
 
-            function drawShape(x0, y0, x1, y1) {
-                const frame = project.frames[project.activeFrame];
-                const layer = frame.layers[frame.activeLayer];
-                if (layer.locked) return;
-                if (currentTool === 'line') {
-                    drawLine(layer.data, x0, y0, x1, y1, currentColor);
-                } else if (currentTool === 'rect') {
-                    drawRect(layer.data, x0, y0, x1, y1, currentColor);
-                } else if (currentTool === 'ellipse') {
-                    drawEllipse(layer.data, x0, y0, x1, y1, currentColor);
-                }
-            }
+    function drawShape(x0, y0, x1, y1) {
+        const frame = project.frames[project.activeFrame];
+        const layer = frame.layers[frame.activeLayer];
+        if (layer.locked) return;
+        if (currentTool === 'line') {
+            drawLine(layer.data, x0, y0, x1, y1, currentColor);
+        } else if (currentTool === 'rect') {
+            drawRect(layer.data, x0, y0, x1, y1, currentColor);
+        } else if (currentTool === 'ellipse') {
+            drawEllipse(layer.data, x0, y0, x1, y1, currentColor);
+        } else if (currentTool === 'gradient') {
+            drawGradient(layer.data, x0, y0, x1, y1);
+        }
+    }
 
-            function drawLine(data, x0, y0, x1, y1, color) {
-                let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
-                let sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1;
-                let err = dx - dy;
-                while (true) {
-                    data[y0][x0] = color;
-                    if (symmetryMode) data[y0][gridWidth - 1 - x0] = color;
-                    if (x0 === x1 && y0 === y1) break;
-                    let e2 = 2 * err;
-                    if (e2 > -dy) { err -= dy; x0 += sx; }
-                    if (e2 < dx) { err += dx; y0 += sy; }
-                }
-                drawComposite();
-            }
+    function drawLine(data, x0, y0, x1, y1, color) {
+        let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+        let sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1;
+        let err = dx - dy;
+        while (true) {
+            data[y0][x0] = color;
+            if (symmetryMode) data[y0][gridWidth - 1 - x0] = color;
+            if (x0 === x1 && y0 === y1) break;
+            let e2 = 2 * err;
+            if (e2 > -dy) { err -= dy; x0 += sx; }
+            if (e2 < dx) { err += dx; y0 += sy; }
+        }
+        drawComposite();
+    }
 
-            function drawRect(data, x0, y0, x1, y1, color) {
-                let xMin = Math.min(x0, x1), xMax = Math.max(x0, x1);
-                let yMin = Math.min(y0, y1), yMax = Math.max(y0, y1);
-                for (let x = xMin; x <= xMax; x++) {
-                    data[yMin][x] = color;
-                    data[yMax][x] = color;
-                    if (symmetryMode) {
-                        data[yMin][gridWidth - 1 - x] = color;
-                        data[yMax][gridWidth - 1 - x] = color;
-                    }
-                }
-                for (let y = yMin; y <= yMax; y++) {
-                    data[y][xMin] = color;
-                    data[y][xMax] = color;
-                    if (symmetryMode) {
-                        data[y][gridWidth - 1 - xMin] = color;
-                        data[y][gridWidth - 1 - xMax] = color;
-                    }
-                }
-                drawComposite();
+    function drawRect(data, x0, y0, x1, y1, color) {
+        let xMin = Math.min(x0, x1), xMax = Math.max(x0, x1);
+        let yMin = Math.min(y0, y1), yMax = Math.max(y0, y1);
+        for (let x = xMin; x <= xMax; x++) {
+            data[yMin][x] = color;
+            data[yMax][x] = color;
+            if (symmetryMode) {
+                data[yMin][gridWidth - 1 - x] = color;
+                data[yMax][gridWidth - 1 - x] = color;
             }
+        }
+        for (let y = yMin; y <= yMax; y++) {
+            data[y][xMin] = color;
+            data[y][xMax] = color;
+            if (symmetryMode) {
+                data[y][gridWidth - 1 - xMin] = color;
+                data[y][gridWidth - 1 - xMax] = color;
+            }
+        }
+        drawComposite();
+    }
 
-            function drawEllipse(data, x0, y0, x1, y1, color) {
-                let centerX = Math.floor((x0 + x1) / 2), centerY = Math.floor((y0 + y1) / 2);
-                let rx = Math.floor(Math.abs(x1 - x0) / 2), ry = Math.floor(Math.abs(y1 - y0) / 2);
-                for (let y = -ry; y <= ry; y++) {
-                    for (let x = -rx; x <= rx; x++) {
-                        if ((x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1) {
-                            let drawX = centerX + x;
-                            let drawY = centerY + y;
-                            if (drawX >= 0 && drawX < gridWidth && drawY >= 0 && drawY < gridHeight) {
-                                data[drawY][drawX] = color;
-                                if (symmetryMode && (gridWidth - 1 - drawX) >= 0 && (gridWidth - 1 - drawX) < gridWidth) {
-                                    data[drawY][gridWidth - 1 - drawX] = color;
-                                }
-                            }
+    function drawEllipse(data, x0, y0, x1, y1, color) {
+        let centerX = Math.floor((x0 + x1) / 2), centerY = Math.floor((y0 + y1) / 2);
+        let rx = Math.floor(Math.abs(x1 - x0) / 2), ry = Math.floor(Math.abs(y1 - y0) / 2);
+        for (let y = -ry; y <= ry; y++) {
+            for (let x = -rx; x <= rx; x++) {
+                if ((x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1) {
+                    let drawX = centerX + x;
+                    let drawY = centerY + y;
+                    if (drawX >= 0 && drawX < gridWidth && drawY >= 0 && drawY < gridHeight) {
+                        data[drawY][drawX] = color;
+                        if (symmetryMode && (gridWidth - 1 - drawX) >= 0 && (gridWidth - 1 - drawX) < gridWidth) {
+                            data[drawY][gridWidth - 1 - drawX] = color;
                         }
                     }
                 }
-                drawComposite();
             }
+        }
+        drawComposite();
+    }
 
-            function saveHistory() {
-                historyStack.push(JSON.stringify(project));
-                redoStack = [];
-            }
+    function drawGradient(data, x0, y0, x1, y1) {
+        // Simple gradient implementation: interpolate between currentColor and transparent
+        let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y1);
+        let sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1;
+        let err = dx - dy;
+        let steps = Math.max(dx, dy);
+        let [r0, g0, b0, a0] = currentColor.match(/\d+\.?\d*/g).map(Number);
+        let rStep = (255 - r0) / steps, gStep = (255 - g0) / steps, bStep = (255 - b0) / steps, aStep = (0 - a0) / steps;
+        let x = x0, y = y0, step = 0;
+        while (true) {
+            let r = Math.min(255, Math.max(0, Math.round(r0 + rStep * step)));
+            let g = Math.min(255, Math.max(0, Math.round(g0 + gStep * step)));
+            let b = Math.min(255, Math.max(0, Math.round(b0 + bStep * step)));
+            let a = Math.min(1, Math.max(0, a0 + aStep * step));
+            data[y][x] = `rgba(${r}, ${g}, ${b}, ${a})`;
+            if (symmetryMode) data[y][gridWidth - 1 - x] = data[y][x];
+            if (x === x1 && y === y1) break;
+            let e2 = 2 * err;
+            if (e2 > -dy) { err -= dy; x += sx; }
+            if (e2 < dx) { err += dx; y += sy; }
+            step++;
+        }
+        drawComposite();
+    }
 
-            function undo() {
-                if (historyStack.length > 1) {
-                    redoStack.push(historyStack.pop());
-                    project = JSON.parse(historyStack[historyStack.length - 1]);
-                    updateLayersUI();
-                    updateFramesUI();
-                    drawComposite();
-                }
-            }
+    function saveHistory() {
+        historyStack.push(JSON.stringify(project));
+        redoStack = [];
+    }
 
-            function redo() {
-                if (redoStack.length) {
-                    historyStack.push(redoStack.pop());
-                    project = JSON.parse(historyStack[historyStack.length - 1]);
-                    updateLayersUI();
-                    updateFramesUI();
-                    drawComposite();
-                }
-            }
+    function undo() {
+        if (historyStack.length > 1) {
+            redoStack.push(historyStack.pop());
+            project = JSON.parse(historyStack[historyStack.length - 1]);
+            updateLayersUI();
+            updateFramesUI();
+            drawComposite();
+        }
+    }
 
-            document.getElementById('undoBtn').addEventListener('click', undo);
-            document.getElementById('redoBtn').addEventListener('click', redo);
-            document.getElementById('clearBtn').addEventListener('click', () => {
-                const frame = project.frames[project.activeFrame];
-                if (!frame.layers[frame.activeLayer].locked) {
-                    frame.layers[frame.activeLayer].data = createEmptyLayer();
-                    drawComposite();
-                    saveHistory();
-                }
-            });
+    function redo() {
+        if (redoStack.length) {
+            historyStack.push(redoStack.pop());
+            project = JSON.parse(historyStack[historyStack.length - 1]);
+            updateLayersUI();
+            updateFramesUI();
+            drawComposite();
+        }
+    }
 
-            document.getElementById('exportBtn').addEventListener('click', () => {
-                const watermarkPopup = document.getElementById('watermarkPopup');
-                const supportPopup = document.getElementById('supportPopup');
-                watermarkPopup.style.display = 'block';
-                let resolveWatermark;
-                const watermarkPromise = new Promise(resolve => resolveWatermark = resolve);
+    document.getElementById('undoBtn').addEventListener('click', undo);
+    document.getElementById('redoBtn').addEventListener('click', redo);
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        const frame = project.frames[project.activeFrame];
+        if (!frame.layers[frame.activeLayer].locked) {
+            frame.layers[frame.activeLayer].data = createEmptyLayer();
+            drawComposite();
+            saveHistory();
+        }
+    });
 
-                document.getElementById('watermarkYes').onclick = () => {
-                    resolveWatermark(true);
-                    watermarkPopup.style.display = 'none';
-                };
-                document.getElementById('watermarkNo').onclick = () => {
-                    resolveWatermark(false);
-                    watermarkPopup.style.display = 'none';
-                    supportPopup.style.display = 'block';
-                };
-                document.getElementById('supportClose').onclick = () => {
-                    supportPopup.style.display = 'none';
-                };
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        const watermarkPopup = document.getElementById('watermarkPopup');
+        const supportPopup = document.getElementById('supportPopup');
+        watermarkPopup.style.display = 'block';
+        let resolveWatermark;
+        const watermarkPromise = new Promise(resolve => resolveWatermark = resolve);
 
-                watermarkPromise.then(useWatermark => {
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = gridWidth * zoom;
-                    tempCanvas.height = gridHeight * zoom;
-                    const tempCtx = tempCanvas.getContext('2d');
-                    tempCtx.fillStyle = document.getElementById('bgColorPicker').value;
-                    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                    const frame = project.frames[project.activeFrame];
-                    frame.layers.forEach(layer => {
-                        if (layer.visible) {
-                            for (let y = 0; y < gridHeight; y++) {
-                                for (let x = 0; x < gridWidth; x++) {
-                                    if (layer.data[y][x]) {
-                                        tempCtx.fillStyle = layer.data[y][x];
-                                        tempCtx.fillRect(x * zoom, y * zoom, zoom, zoom);
-                                    }
-                                }
-                            }
-                        }
-                    });
-                    if (useWatermark) addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
-                    const link = document.createElement('a');
-                    link.download = 'pixel-art.png';
-                    link.href = tempCanvas.toDataURL();
-                    link.click();
-                });
-            });
-
-            function exportLayers() {
-                const watermarkPopup = document.getElementById('watermarkPopup');
-                const supportPopup = document.getElementById('supportPopup');
-                watermarkPopup.style.display = 'block';
-                let resolveWatermark;
-                const watermarkPromise = new Promise(resolve => resolveWatermark = resolve);
-
-                document.getElementById('watermarkYes').onclick = () => {
-                    resolveWatermark(true);
-                    watermarkPopup.style.display = 'none';
-                };
-                document.getElementById('watermarkNo').onclick = () => {
-                    resolveWatermark(false);
-                    watermarkPopup.style.display = 'none';
-                    supportPopup.style.display = 'block';
-                };
-                document.getElementById('supportClose').onclick = () => {
-                    supportPopup.style.display = 'none';
-                };
-
-                watermarkPromise.then(useWatermark => {
-                    const frame = project.frames[project.activeFrame];
-                    frame.layers.forEach((layer, index) => {
-                        const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = gridWidth * zoom;
-                        tempCanvas.height = gridHeight * zoom;
-                        const tempCtx = tempCanvas.getContext('2d');
-                        for (let y = 0; y < gridHeight; y++) {
-                            for (let x = 0; x < gridWidth; x++) {
-                                const color = layer.data[y][x];
-                                if (color) {
-                                    tempCtx.fillStyle = color;
-                                    tempCtx.fillRect(x * zoom, y * zoom, zoom, zoom);
-                                }
-                            }
-                        }
-                        if (useWatermark) addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
-                        const link = document.createElement('a');
-                        link.download = `layer_${index + 1}_${layer.name}.png`;
-                        link.href = tempCanvas.toDataURL('image/png');
-                        link.click();
-                    });
-                    alert('Layers exported successfully!');
-                });
-            }
-            document.getElementById('exportLayersBtn').addEventListener('click', exportLayers);
-
-            document.getElementById('saveProjectBtn').addEventListener('click', () => {
-                const projectData = JSON.stringify({
-                    gridWidth,
-                    gridHeight,
-                    frames: project.frames,
-                    activeFrame: project.activeFrame
-                });
-                const blob = new Blob([projectData], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'banana_project.json';
-                a.click();
-                URL.revokeObjectURL(url);
-            });
-
-            document.getElementById('loadProjectFile').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file && file.type === 'application/json') {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        try {
-                            const loadedProject = JSON.parse(event.target.result);
-                            gridWidth = loadedProject.gridWidth;
-                            gridHeight = loadedProject.gridHeight;
-                            project = loadedProject;
-                            resizeCanvas();
-                            updateLayersUI();
-                            updateFramesUI();
-                            drawComposite();
-                            historyStack = [JSON.stringify(project)];
-                            redoStack = [];
-                            alert('Project loaded successfully!');
-                        } catch (error) {
-                            console.error('Failed to load project:', error);
-                            alert('Invalid project file. Please upload a valid .json file.');
-                        }
-                    };
-                    reader.readAsText(file);
-                } else {
-                    alert('Please upload a valid .json project file.');
-                }
-                e.target.value = '';
-            });
-
-            document.getElementById('themeToggleBtn').addEventListener('click', () => {
-                if (theme === 'dark') {
-                    document.body.classList.add('light-theme');
-                    theme = 'light';
-                } else {
-                    document.body.classList.remove('light-theme');
-                    theme = 'dark';
-                }
-                drawComposite();
-            });
-
-            window.addEventListener('keydown', (e) => {
-                if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
-                if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
-                if (e.key === 'p') selectTool('pencil');
-                if (e.key === 'e') selectTool('eraser');
-                if (e.key === 'i') selectTool('eyedropper');
-                if (e.key === 'd') selectTool('delete');
-                if (e.key === 'f') selectTool('fill');
-                if (e.key === 'l') selectTool('line');
-                if (e.key === 'r') selectTool('rect');
-                if (e.key === 'o') selectTool('ellipse');
-                if (e.key === 'g') selectTool('gradient');
-                if (e.key === 'y') { symmetryMode = !symmetryMode; symmetryBtn.classList.toggle('active', symmetryMode); }
-            });
-
-            // Make load project button trigger file input
-            document.querySelector('#headerTools .dropdown button[title="Load Project"]').addEventListener('click', () => {
-                document.getElementById('loadProjectFile').click();
-            });
-
-            // Make upload reference button trigger file input
-            document.querySelector('.reference-controls .dropdown button').addEventListener('click', () => {
-                document.getElementById('referenceUpload').click();
-            });
-
-            function updateCursor() {
-                let cursor;
-                switch (currentTool) {
-                    case 'pencil':
-                    case 'eraser':
-                        cursor = 'crosshair';
-                        break;
-                    case 'eyedropper':
-                        cursor = 'pointer';
-                        break;
-                    case 'fill':
-                        cursor = 'cell';
-                        break;
-                    default:
-                        cursor = 'default';
-                }
-                compositeCanvas.style.cursor = cursor;
-            }
-
-            window.addEventListener('resize', resizeCanvas);
-
-            drawColorPicker(0);
-            drawColorPickerGrid();
-            updateIndicator(colorCanvas.width / 2, colorCanvas.height / 2, getColorAtPosition(colorCanvas.width / 2, colorCanvas.height / 2));
-            displayPresetPalette();
-            initProject();
+        document.getElementById('watermarkYes').onclick = () => {
+            resolveWatermark(true);
+            watermarkPopup.style.display = 'none';
         };
-    </script>
+        document.getElementById('watermarkNo').onclick = () => {
+            resolveWatermark(false);
+            watermarkPopup.style.display = 'none';
+            supportPopup.style.display = 'block';
+        };
+        document.getElementById('supportClose').onclick = () => {
+            supportPopup.style.display = 'none';
+        };
+
+        watermarkPromise.then(useWatermark => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = gridWidth * zoom;
+            tempCanvas.height = gridHeight * zoom;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.fillStyle = document.getElementById('bgColorPicker').value;
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            const frame = project.frames[project.activeFrame];
+            frame.layers.forEach(layer => {
+                if (layer.visible) {
+                    for (let y = 0; y < gridHeight; y++) {
+                        for (let x = 0; x < gridWidth; x++) {
+                            if (layer.data[y][x]) {
+                                tempCtx.fillStyle = layer.data[y][x];
+                                tempCtx.fillRect(x * zoom, y * zoom, zoom, zoom);
+                            }
+                        }
+                    }
+                }
+            });
+            if (useWatermark) addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
+            const link = document.createElement('a');
+            link.download = 'pixel-art.png';
+            link.href = tempCanvas.toDataURL();
+            link.click();
+        });
+    });
+
+    function exportLayers() {
+        const watermarkPopup = document.getElementById('watermarkPopup');
+        const supportPopup = document.getElementById('supportPopup');
+        watermarkPopup.style.display = 'block';
+        let resolveWatermark;
+        const watermarkPromise = new Promise(resolve => resolveWatermark = resolve);
+
+        document.getElementById('watermarkYes').onclick = () => {
+            resolveWatermark(true);
+            watermarkPopup.style.display = 'none';
+        };
+        document.getElementById('watermarkNo').onclick = () => {
+            resolveWatermark(false);
+            watermarkPopup.style.display = 'none';
+            supportPopup.style.display = 'block';
+        };
+        document.getElementById('supportClose').onclick = () => {
+            supportPopup.style.display = 'none';
+        };
+
+        watermarkPromise.then(useWatermark => {
+            const frame = project.frames[project.activeFrame];
+            frame.layers.forEach((layer, index) => {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = gridWidth * zoom;
+                tempCanvas.height = gridHeight * zoom;
+                const tempCtx = tempCanvas.getContext('2d');
+                for (let y = 0; y < gridHeight; y++) {
+                    for (let x = 0; x < gridWidth; x++) {
+                        const color = layer.data[y][x];
+                        if (color) {
+                            tempCtx.fillStyle = color;
+                            tempCtx.fillRect(x * zoom, y * zoom, zoom, zoom);
+                        }
+                    }
+                }
+                if (useWatermark) addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
+                const link = document.createElement('a');
+                link.download = `layer_${index + 1}_${layer.name}.png`;
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            });
+            alert('Layers exported successfully!');
+        });
+    }
+    document.getElementById('exportLayersBtn').addEventListener('click', exportLayers);
+
+    document.getElementById('saveProjectBtn').addEventListener('click', () => {
+        const projectData = JSON.stringify({
+            gridWidth,
+            gridHeight,
+            frames: project.frames,
+            activeFrame: project.activeFrame
+        });
+        const blob = new Blob([projectData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'banana_project.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('loadProjectFile').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type === 'application/json') {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const loadedProject = JSON.parse(event.target.result);
+                    gridWidth = loadedProject.gridWidth;
+                    gridHeight = loadedProject.gridHeight;
+                    project = loadedProject;
+                    resizeCanvas();
+                    updateLayersUI();
+                    updateFramesUI();
+                    drawComposite();
+                    historyStack = [JSON.stringify(project)];
+                    redoStack = [];
+                    alert('Project loaded successfully!');
+                } catch (error) {
+                    console.error('Failed to load project:', error);
+                    alert('Invalid project file. Please upload a valid .json file.');
+                }
+            };
+            reader.readAsText(file);
+        } else {
+            alert('Please upload a valid .json project file.');
+        }
+        e.target.value = '';
+    });
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+        if (theme === 'dark') {
+            document.body.classList.add('light-theme');
+            theme = 'light';
+        } else {
+            document.body.classList.remove('light-theme');
+            theme = 'dark';
+        }
+        drawComposite();
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+        if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+        if (e.key === 'p') selectTool('pencil');
+        if (e.key === 'e') selectTool('eraser');
+        if (e.key === 'i') selectTool('eyedropper');
+        if (e.key === 'd') selectTool('delete');
+        if (e.key === 'f') selectTool('fill');
+        if (e.key === 'l') selectTool('line');
+        if (e.key === 'r') selectTool('rect');
+        if (e.key === 'o') selectTool('ellipse');
+        if (e.key === 'g') selectTool('gradient');
+        if (e.key === 'y') { symmetryMode = !symmetryMode; symmetryBtn.classList.toggle('active', symmetryMode); }
+    });
+
+    document.querySelector('#headerTools .dropdown button[title="Load Project"]').addEventListener('click', () => {
+        document.getElementById('loadProjectFile').click();
+    });
+
+    document.querySelector('.reference-controls .dropdown button').addEventListener('click', () => {
+        document.getElementById('referenceUpload').click();
+    });
+
+    function updateCursor() {
+        let cursor;
+        switch (currentTool) {
+            case 'pencil':
+            case 'eraser':
+            case 'delete':
+                cursor = 'crosshair';
+                break;
+            case 'eyedropper':
+                cursor = 'pointer';
+                break;
+            case 'fill':
+                cursor = 'cell';
+                break;
+            case 'line':
+            case 'rect':
+            case 'ellipse':
+            case 'gradient':
+                cursor = 'crosshair';
+                break;
+            default:
+                cursor = 'default';
+        }
+        compositeCanvas.style.cursor = cursor;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    drawColorPicker(0);
+    drawColorPickerGrid();
+    updateIndicator(colorCanvas.width / 2, colorCanvas.height / 2, getColorAtPosition(colorCanvas.width / 2, colorCanvas.height / 2));
+    displayPresetPalette();
+    initProject();
+};
+</script>
 </body>
 </html>
