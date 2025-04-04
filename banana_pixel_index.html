@@ -78,7 +78,7 @@
         #container {
             display: grid;
             grid-template-columns: minmax(150px, 200px) 1fr minmax(200px, 250px);
-            grid-template-rows: 100px 1fr 80px 40px;
+            grid-template-rows: auto 1fr auto auto;
             grid-template-areas:
                 "sidebar header rightSidebar"
                 "sidebar main rightSidebar"
@@ -366,9 +366,6 @@
             display: none;
         }
         .color-swatch:hover button { display: block; }
-        #brushSizeControl { margin-top: 10px; display: flex; align-items: center; gap: 5px; }
-        #brushSizeControl label { font-size: 0.9rem; }
-        #hueSlider, #alphaSlider { width: 100%; }
 
         /* Reference and Zoom Controls */
         .reference-controls {
@@ -436,33 +433,36 @@
         body.light-theme #watermarkPopup, body.light-theme #supportPopup { background: #FBC02D; color: #222; }
         body.light-theme .social-links, body.light-theme .social-links a, body.light-theme .social-links span { color: #FFFDE7; }
 
-        /* Media Queries for Responsive Design */
-        @media (max-width: 768px) {
+        /* Media Queries for Mobile & Tablet */
+        @media (max-width: 1024px) {
             #container {
                 grid-template-columns: 1fr;
-                grid-template-rows: auto auto auto auto auto;
+                grid-template-rows: auto auto auto auto auto auto;
                 grid-template-areas:
                     "header"
-                    "sidebar"
                     "main"
+                    "sidebar"
                     "rightSidebar"
                     "animation"
                     "footer";
             }
             #sidebar, #rightSidebar {
-                max-height: 200px;
+                max-height: 30vh;
                 overflow-y: auto;
             }
             #main {
-                height: 400px;
+                min-height: 50vh;
             }
             canvas {
                 width: 100%;
                 height: auto;
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
             }
             .toolbar-btn, .toolbar-btn-drawing, .toolbar-btn-small {
-                width: 40px;
-                height: 40px;
+                min-width: 40px;
+                min-height: 40px;
                 font-size: 1.5rem;
             }
             .toolbar-btn-small {
@@ -471,16 +471,36 @@
             }
             #colorCanvas {
                 width: 100%;
-                height: 200px;
+                height: 150px;
             }
             #animation .toolbar-btn-small {
-                width: 50px;
-                height: 50px;
+                min-width: 50px;
+                min-height: 50px;
             }
             #headerTitle {
-                display: none; /* Hide header title on smaller screens */
+                display: none;
             }
         }
+
+        /* Additional adjustments for very small mobile screens */
+        @media (max-width: 480px) {
+            #landingPage h1 { font-size: 2.5rem; }
+            #landingPage h2 { font-size: 1.2rem; }
+            .landing-footer { font-size: 0.7rem; }
+            #main {
+                min-height: 40vh;
+            }
+            .toolbar-btn, .toolbar-btn-drawing, .toolbar-btn-small {
+                min-width: 35px;
+                min-height: 35px;
+                font-size: 1rem;
+            }
+            #colorCanvas {
+                width: 100%;
+                height: 100px;
+            }
+        }
+
         @media (min-width: 768px) {
             #landingPage h1 { font-size: 4.5rem; margin-top: -20px; }
             #landingPage .sponsor { margin-top: 60px; font-size: 1rem; }
@@ -554,7 +574,7 @@
                 </div>
             </div>
             <div id="main">
-                <canvas id="compositeCanvas" width="800" height="800"></canvas>
+                <canvas id="compositeCanvas"></canvas>
                 <div class="reference-controls">
                     <div class="dropdown">
                         <button class="toolbar-btn-drawing" title="Upload Reference">⬆️</button>
@@ -656,12 +676,14 @@
                     console.log('Launch App clicked!');
                     document.getElementById('landingPage').style.display = 'none';
                     document.getElementById('editorContainer').style.display = 'block';
+                    resizeCanvas(); // Ensure canvas is sized on launch
                 });
             } else {
                 console.error('Launch button not found!');
             }
 
-            let gridWidth = 32, gridHeight = 32, defaultZoom = 25;
+            let gridWidth = 32, gridHeight = 32;
+            let defaultZoom = window.innerWidth < 480 ? 15 : 25; // Smaller default zoom for mobile
             let zoom = defaultZoom;
             let zoomLevel = 1;
             let offsetX = 0, offsetY = 0;
@@ -684,11 +706,6 @@
 
             const compositeCanvas = document.getElementById('compositeCanvas');
             const ctx = compositeCanvas.getContext('2d');
-            const canvasWidth = 800;
-            const canvasHeight = 800;
-            compositeCanvas.width = canvasWidth;
-            compositeCanvas.height = canvasHeight;
-
             const colorCanvas = document.getElementById("colorCanvas");
             const colorCtx = colorCanvas.getContext("2d");
             const gridCanvas = document.getElementById("gridOverlay");
@@ -699,6 +716,18 @@
             const saveColorBtn = document.getElementById("saveColorBtn");
             const toggleGridBtn = document.getElementById("toggleGridBtn");
             let gridEnabled = false;
+
+            // Dynamic canvas sizing function
+            function resizeCanvas() {
+                const main = document.getElementById('main');
+                compositeCanvas.width = main.clientWidth - 30; // Adjust for padding
+                compositeCanvas.height = main.clientHeight - 30;
+                const maxGridWidth = gridWidth * zoom;
+                const maxGridHeight = gridHeight * zoom;
+                zoomLevel = Math.min(compositeCanvas.width / maxGridWidth, compositeCanvas.height / maxGridHeight);
+                centerGrid();
+                drawComposite();
+            }
 
             function createEmptyLayer() {
                 let layer = [];
@@ -711,10 +740,7 @@
             function setBoardSize(newWidth, newHeight) {
                 gridWidth = newWidth;
                 gridHeight = newHeight;
-                const maxGridWidth = gridWidth * zoom;
-                const maxGridHeight = gridHeight * zoom;
-                zoomLevel = Math.min(canvasWidth / maxGridWidth, canvasHeight / maxGridHeight);
-                centerGrid();
+                resizeCanvas();
                 initProject();
             }
 
@@ -1129,8 +1155,8 @@
             function centerGrid() {
                 const gridPixelWidth = gridWidth * zoom * zoomLevel;
                 const gridPixelHeight = gridHeight * zoom * zoomLevel;
-                offsetX = (canvasWidth - gridPixelWidth) / 2;
-                offsetY = (canvasHeight - gridPixelHeight) / 2;
+                offsetX = (compositeCanvas.width - gridPixelWidth) / 2;
+                offsetY = (compositeCanvas.height - gridPixelHeight) / 2;
             }
 
             const pencilBtn = document.getElementById('pencilBtn');
@@ -1204,17 +1230,6 @@
             document.getElementById('brushSize').addEventListener('input', (e) => {
                 brushSize = parseInt(e.target.value);
             });
-
-            function updateCursor() {
-                if (currentTool === 'pencil') compositeCanvas.style.cursor = 'crosshair';
-                else if (currentTool === 'eraser') compositeCanvas.style.cursor = 'cell';
-                else if (currentTool === 'eyedropper') compositeCanvas.style.cursor = 'copy';
-                else if (currentTool === 'delete') compositeCanvas.style.cursor = 'not-allowed';
-                else if (currentTool === 'fill') compositeCanvas.style.cursor = 'alias';
-                else if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'gradient')
-                    compositeCanvas.style.cursor = 'crosshair';
-                else compositeCanvas.style.cursor = 'default';
-            }
 
             document.getElementById('referenceUpload').addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -1740,7 +1755,12 @@
             document.getElementById('exportLayersBtn').addEventListener('click', exportLayers);
 
             document.getElementById('saveProjectBtn').addEventListener('click', () => {
-                const projectData = JSON.stringify(project);
+                const projectData = JSON.stringify({
+                    gridWidth,
+                    gridHeight,
+                    frames: project.frames,
+                    activeFrame: project.activeFrame
+                });
                 const blob = new Blob([projectData], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1756,7 +1776,11 @@
                     const reader = new FileReader();
                     reader.onload = function(event) {
                         try {
-                            project = JSON.parse(event.target.result);
+                            const loadedProject = JSON.parse(event.target.result);
+                            gridWidth = loadedProject.gridWidth;
+                            gridHeight = loadedProject.gridHeight;
+                            project = loadedProject;
+                            resizeCanvas();
                             updateLayersUI();
                             updateFramesUI();
                             drawComposite();
@@ -1810,6 +1834,27 @@
             document.querySelector('.reference-controls .dropdown button').addEventListener('click', () => {
                 document.getElementById('referenceUpload').click();
             });
+
+            function updateCursor() {
+                let cursor;
+                switch (currentTool) {
+                    case 'pencil':
+                    case 'eraser':
+                        cursor = 'crosshair';
+                        break;
+                    case 'eyedropper':
+                        cursor = 'pointer';
+                        break;
+                    case 'fill':
+                        cursor = 'cell';
+                        break;
+                    default:
+                        cursor = 'default';
+                }
+                compositeCanvas.style.cursor = cursor;
+            }
+
+            window.addEventListener('resize', resizeCanvas);
 
             drawColorPicker(0);
             drawColorPickerGrid();
