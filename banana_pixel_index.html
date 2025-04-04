@@ -77,7 +77,7 @@
         }
         #container {
             display: grid;
-            grid-template-columns: 200px 1fr 250px;
+            grid-template-columns: minmax(150px, 200px) 1fr minmax(200px, 250px);
             grid-template-rows: 100px 1fr 80px 40px;
             grid-template-areas:
                 "sidebar header rightSidebar"
@@ -370,6 +370,24 @@
         #brushSizeControl label { font-size: 0.9rem; }
         #hueSlider, #alphaSlider { width: 100%; }
 
+        /* Reference and Zoom Controls */
+        .reference-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 60px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+
         /* Popup Styles */
         #watermarkPopup, #supportPopup {
             display: none;
@@ -418,18 +436,47 @@
         body.light-theme #watermarkPopup, body.light-theme #supportPopup { background: #FBC02D; color: #222; }
         body.light-theme .social-links, body.light-theme .social-links a, body.light-theme .social-links span { color: #FFFDE7; }
 
-        /* Reference Image Controls */
-        .reference-controls {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            gap: 8px;
-            z-index: 1000;
-        }
-
-        /* Media Queries */
+        /* Media Queries for Responsive Design */
         @media (max-width: 768px) {
+            #container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto auto;
+                grid-template-areas:
+                    "header"
+                    "sidebar"
+                    "main"
+                    "rightSidebar"
+                    "animation"
+                    "footer";
+            }
+            #sidebar, #rightSidebar {
+                max-height: 200px;
+                overflow-y: auto;
+            }
+            #main {
+                height: 400px;
+            }
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+            .toolbar-btn, .toolbar-btn-drawing, .toolbar-btn-small {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            .toolbar-btn-small {
+                padding: 8px 16px;
+                font-size: 1rem;
+            }
+            #colorCanvas {
+                width: 100%;
+                height: 200px;
+            }
+            #animation .toolbar-btn-small {
+                width: 50px;
+                height: 50px;
+            }
             #headerTitle {
                 display: none; /* Hide header title on smaller screens */
             }
@@ -517,13 +564,17 @@
                     </div>
                     <button id="removeReferenceBtn" class="toolbar-btn-drawing" title="Remove Reference">❌</button>
                 </div>
+                <div class="zoom-controls">
+                    <button id="zoomInBtn" class="toolbar-btn-drawing" title="Zoom In">+</button>
+                    <button id="zoomOutBtn" class="toolbar-btn-drawing" title="Zoom Out">-</button>
+                </div>
             </div>
             <div id="rightSidebar">
                 <h3>Draw</h3>
                 <div class="tool-group">
                     <button id="pencilBtn" class="toolbar-btn-drawing active" title="Pencil (P)">✏️</button>
                     <button id="eraserBtn" class="toolbar-btn-drawing" title="Erase (E)">🧹</button>
-                    <button id="eyedropperBtn" class="toolbar-btn-drawing" title="Eyedropper (I)">👁️</button>
+                    <button id="eyedropperBtn" class="toolbar-btn-drawing" title="Eyedropper (I)">💧</button>
                     <button id="deleteBtn" class="toolbar-btn-drawing" title="Delete (D)">🗑️</button>
                     <button id="fillBtn" class="toolbar-btn-drawing" title="Fill (F)">🪣</button>
                 </div>
@@ -538,11 +589,6 @@
                     <button id="symmetryBtn" class="toolbar-btn-drawing" title="Symmetry (Y)">Symm.</button>
                     <button id="ellipseBtn" class="toolbar-btn-drawing" title="Ellipse (O)">Ellipse</button>
                     <button id="gradientBtn" class="toolbar-btn-drawing" title="Gradient (G)">Grad.</button>
-                </div>
-                <h3>Zoom</h3>
-                <div class="tool-group">
-                    <button id="zoomInBtn" class="toolbar-btn-drawing" title="Zoom In">+</button>
-                    <button id="zoomOutBtn" class="toolbar-btn-drawing" title="Zoom Out">-</button>
                 </div>
                 <div id="palette">
                     <h3>Color Palette</h3>
@@ -1273,20 +1319,18 @@
                 startY = pos.y;
                 isDrawing = true;
                 saveHistory();
-                if (currentTool === 'eyedropper') {
+                if (currentTool === 'fill') {
+                    performFill(pos.x, pos.y);
+                    isDrawing = false;
+                } else if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
+                    drawPixel(pos.x, pos.y);
+                } else if (currentTool === 'eyedropper') {
                     const color = getPixelColor(pos.x, pos.y);
                     if (color) {
                         currentColor = color;
                         updateIndicator(colorCanvas.width / 2, colorCanvas.height / 2, color);
                     }
                     isDrawing = false;
-                    return;
-                }
-                if (currentTool === 'fill') {
-                    performFill(pos.x, pos.y);
-                    isDrawing = false;
-                } else if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
-                    drawPixel(pos.x, pos.y);
                 }
             });
 
@@ -1295,7 +1339,7 @@
                 const pos = getCanvasCoordinates(e);
                 if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
                     drawPixel(pos.x, pos.y);
-                } else if (currentTool !== 'eyedropper') {
+                } else {
                     drawComposite();
                     previewShape(startX, startY, pos.x, pos.y);
                 }
@@ -1319,20 +1363,18 @@
                     startY = pos.y;
                     isDrawing = true;
                     saveHistory();
-                    if (currentTool === 'eyedropper') {
+                    if (currentTool === 'fill') {
+                        performFill(pos.x, pos.y);
+                        isDrawing = false;
+                    } else if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
+                        drawPixel(pos.x, pos.y);
+                    } else if (currentTool === 'eyedropper') {
                         const color = getPixelColor(pos.x, pos.y);
                         if (color) {
                             currentColor = color;
                             updateIndicator(colorCanvas.width / 2, colorCanvas.height / 2, color);
                         }
                         isDrawing = false;
-                        return;
-                    }
-                    if (currentTool === 'fill') {
-                        performFill(pos.x, pos.y);
-                        isDrawing = false;
-                    } else if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
-                        drawPixel(pos.x, pos.y);
                     }
                 } else if (e.touches.length === 2) {
                     isDrawing = false;
@@ -1351,7 +1393,7 @@
                     const pos = getCanvasCoordinates(e);
                     if (currentTool === 'pencil' || currentTool === 'eraser' || currentTool === 'delete') {
                         drawPixel(pos.x, pos.y);
-                    } else if (currentTool !== 'eyedropper') {
+                    } else {
                         drawComposite();
                         previewShape(startX, startY, pos.x, pos.y);
                     }
@@ -1757,6 +1799,16 @@
                 if (e.key === 'o') selectTool('ellipse');
                 if (e.key === 'g') selectTool('gradient');
                 if (e.key === 'y') { symmetryMode = !symmetryMode; symmetryBtn.classList.toggle('active', symmetryMode); }
+            });
+
+            // Make load project button trigger file input
+            document.querySelector('#headerTools .dropdown button[title="Load Project"]').addEventListener('click', () => {
+                document.getElementById('loadProjectFile').click();
+            });
+
+            // Make upload reference button trigger file input
+            document.querySelector('.reference-controls .dropdown button').addEventListener('click', () => {
+                document.getElementById('referenceUpload').click();
             });
 
             drawColorPicker(0);
