@@ -361,17 +361,9 @@
         }
         .color-swatch:hover button { display: block; }
         .reference-controls {
-            position: absolute;
-            top: 15px;
-            right: 15px;
             display: flex;
             gap: 8px;
             z-index: 1500;
-        }
-        .reference-controls .dropdown-content {
-            top: auto;
-            bottom: 100%;
-            z-index: 3000;
         }
         .zoom-controls {
             position: absolute;
@@ -498,6 +490,7 @@
             .landing-footer { font-size: 0.7rem; }
             #main {
                 min-height: 40vh;
+                align-items: flex-start;
             }
             .toolbar-btn, .toolbar-btn-drawing, .toolbar-btn-small {
                 min-width: 45px;
@@ -520,6 +513,9 @@
             }
             canvas {
                 touch-action: none;
+            }
+            #footer {
+                display: none;
             }
         }
         @media (min-width: 768px) {
@@ -594,20 +590,20 @@
                         <input type="number" id="boardHeightInput" value="32" min="1" aria-label="Board Height">
                         <button id="setBoardSizeBtn" class="toolbar-btn-small" aria-label="Set Board Size">Set</button>
                     </div>
+                    <div class="reference-controls">
+                        <div class="dropdown">
+                            <button class="toolbar-btn-drawing" title="Upload Reference" aria-label="Upload Reference">⬆️</button>
+                            <div class="dropdown-content">
+                                <input type="file" id="referenceUpload" accept="image/*" aria-label="Upload Reference Image">
+                            </div>
+                        </div>
+                        <button id="removeReferenceBtn" class="toolbar-btn-drawing" title="Remove Reference" aria-label="Remove Reference">❌</button>
+                    </div>
                 </div>
             </div>
             <div id="main">
                 <canvas id="compositeCanvas" role="img" aria-label="Pixel Art Canvas"></canvas>
                 <canvas id="previewCanvas" width="100" height="100" style="position: absolute; bottom: 15px; left: 15px; border: 1px solid #666;" aria-label="Preview Canvas"></canvas>
-                <div class="reference-controls">
-                    <div class="dropdown">
-                        <button class="toolbar-btn-drawing" title="Upload Reference" aria-label="Upload Reference">⬆️</button>
-                        <div class="dropdown-content">
-                            <input type="file" id="referenceUpload" accept="image/*" aria-label="Upload Reference Image">
-                        </div>
-                    </div>
-                    <button id="removeReferenceBtn" class="toolbar-btn-drawing" title="Remove Reference" aria-label="Remove Reference">❌</button>
-                </div>
                 <div class="zoom-controls">
                     <button id="zoomInBtn" class="toolbar-btn-drawing" title="Zoom In" aria-label="Zoom In">+</button>
                     <button id="zoomOutBtn" class="toolbar-btn-drawing" title="Zoom Out" aria-label="Zoom Out">-</button>
@@ -1128,7 +1124,7 @@
                     if (animationTimeout) clearTimeout(animationTimeout);
                 }
             });
-            document.getElementById('exportGifBtn').addEventListener('click', () => {
+            document.getElementById('exportGifBtn').addEventListener('click', async () => {
                 const useTransparent = confirm("Export with transparent background?");
                 const watermarkPopup = document.getElementById('watermarkPopup');
                 const supportPopup = document.getElementById('supportPopup');
@@ -1147,56 +1143,58 @@
                 document.getElementById('supportClose').onclick = () => {
                     supportPopup.style.display = 'none';
                 };
-                watermarkPromise.then(useWatermark => {
-                    try {
-                        const gif = new GIF({
-                            workers: 2,
-                            quality: 10,
-                            workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
-                        });
-                        project.frames.forEach((frame, index) => {
-                            const tempCanvas = document.createElement('canvas');
-                            tempCanvas.width = gridWidth * zoom;
-                            tempCanvas.height = gridHeight * zoom;
-                            const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
-                            tempCtx.imageSmoothingEnabled = false;
-                            if (!useTransparent) {
-                                tempCtx.fillStyle = document.getElementById('bgColorPicker').value;
-                                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                            }
-                            frame.layers.forEach(layer => {
-                                if (layer.visible) {
-                                    for (let y = 0; y < gridHeight; y++) {
-                                        for (let x = 0; x < gridWidth; x++) {
-                                            if (layer.data[y][x]) {
-                                                tempCtx.fillStyle = layer.data[y][x];
-                                                tempCtx.fillRect(x * zoom, y * zoom, zoom, zoom);
-                                            }
+                const useWatermark = await watermarkPromise;
+                try {
+                    const response = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js');
+                    const workerBlob = await response.blob();
+                    const workerURL = URL.createObjectURL(workerBlob);
+                    const gif = new GIF({
+                        workers: 2,
+                        quality: 10,
+                        workerScript: workerURL
+                    });
+                    project.frames.forEach((frame, index) => {
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = gridWidth * zoom;
+                        tempCanvas.height = gridHeight * zoom;
+                        const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+                        tempCtx.imageSmoothingEnabled = false;
+                        if (!useTransparent) {
+                            tempCtx.fillStyle = document.getElementById('bgColorPicker').value;
+                            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                        }
+                        frame.layers.forEach(layer => {
+                            if (layer.visible) {
+                                for (let y = 0; y < gridHeight; y++) {
+                                    for (let x = 0; x < gridWidth; x++) {
+                                        if (layer.data[y][x]) {
+                                            tempCtx.fillStyle = layer.data[y][x];
+                                            tempCtx.fillRect(x * zoom, y * zoom, zoom, zoom);
                                         }
                                     }
                                 }
-                            });
-                            if (useWatermark) addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
-                            gif.addFrame(tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height), { delay: frame.duration || 100, copy: true });
-                            console.log(`Frame ${index + 1} added to GIF`);
+                            }
                         });
-                        gif.on('finished', blob => {
-                            const link = document.createElement('a');
-                            link.href = URL.createObjectURL(blob);
-                            link.download = 'animation.gif';
-                            link.click();
-                            console.log('GIF export completed');
-                        });
-                        gif.on('error', error => {
-                            console.error('GIF export error:', error);
-                            alert('Failed to export GIF. Check console for details.');
-                        });
-                        gif.render();
-                    } catch (error) {
-                        console.error('GIF export failed:', error);
+                        if (useWatermark) addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
+                        gif.addFrame(tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height), { delay: frame.duration || 100, copy: true });
+                        console.log(`Frame ${index + 1} added to GIF`);
+                    });
+                    gif.on('finished', blob => {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'animation.gif';
+                        link.click();
+                        console.log('GIF export completed');
+                    });
+                    gif.on('error', error => {
+                        console.error('GIF export error:', error);
                         alert('Failed to export GIF. Check console for details.');
-                    }
-                });
+                    });
+                    gif.render();
+                } catch (error) {
+                    console.error('Failed to export GIF:', error);
+                    alert('Failed to export GIF. Check console for details.');
+                }
             });
             document.getElementById('gridToggleBtn').addEventListener('click', () => {
                 showGrid = !showGrid;
@@ -1230,7 +1228,11 @@
                 const gridPixelWidth = gridWidth * zoom * zoomLevel;
                 const gridPixelHeight = gridHeight * zoom * zoomLevel;
                 offsetX = (compositeCanvas.width - gridPixelWidth) / 2;
-                offsetY = (compositeCanvas.height - gridPixelHeight) / 2;
+                if (window.innerWidth < 480) {
+                    offsetY = 0;
+                } else {
+                    offsetY = (compositeCanvas.height - gridPixelHeight) / 2;
+                }
             }
             const pencilBtn = document.getElementById('pencilBtn');
             const eraserBtn = document.getElementById('eraserBtn');
